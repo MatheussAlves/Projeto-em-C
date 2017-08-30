@@ -1,5 +1,5 @@
-# mini-projeto
-Pequeno projeto em C
+# Pequeno resumo do projeto
+
 
 • Para cada Aluno
 - Nome completo
