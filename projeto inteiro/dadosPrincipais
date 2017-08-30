@@ -1,0 +1,777 @@
+// Alunos : Matheus Alves e Matheus Silva
+
+/*
+ Sintese
+   Objetivo: Auxiliar no cadastros de cada aluno curso e matricula.
+ 
+   Entrada : Informaçoes do aluno tais como (nome, CPF , idade,sexo,data de ingresso, matricula).
+
+   Saida   :  informaçoes do aluno de determinada matricula.
+
+*/
+
+#include <stdio.h>
+#include <conio.c>
+#include <time.h>
+#include "Menu.h"
+#include "Cores.h"
+#include "alteraAlunos.h"
+#include "bibliotecaPrototipos.h"
+#include "estruturas.h"
+#include "windows.h"
+#include "manipulaDados.h"
+//#include "matheus.h"
+
+
+
+//PROTOTIPOS
+void menuAlteracao();
+int leDadosCurso(int nroCurso, Cursos *curso);
+void pesquisaCursos();
+void apresentaCursos();
+void apresentaAlunos();
+int verificaMatriculaRepitido(int *matriculaAluno);
+void tiraTerminador(char *string);
+void leValidaTexto(char *titulo,char *texto,int tamanho,int linha, int coluna);
+int validaInt(int numero,int limiteMinimo,int limiteMaximo);
+int leInt(char *titulo,int limiteMinimo,int limiteMaximo,int coluna,int linha);
+void cadastraAlunos(void);
+void menuCadastramentos(int *qtdeAlunos);
+int obtemMatriculaAluno(int matricula);
+void gravaArquivo(Aluno aluno);
+void obtemDataHoraAtual(int *dia,int *mes, int *ano);
+char leValidaCaracter(char *titulo,char *opcoes,int linha,int coluna);
+void cadastraCurso(void);
+int leDadosAlunoPesquisado(int nroAluno, Aluno *dadosAlunos);
+void apresentacoes();
+void pesquisas();
+FILE * abreArq(char *nomeArq, char *modoAbertura, char *mensErro);
+int obtemMatriculaAluno(int codigo);
+void menuExclusao();
+int main(void)
+{
+// Declaracoes
+	char opcaoMenu;
+	int qtdeAlunos;
+	int minutos,horas,diaAtual,anoAtual,mesAtual;
+	char opcao;
+// Instrucoes
+system("mode con:cols=110 lines=30");
+
+	limpaJanela(1,1,30,110,BLUE);
+	apresentaMsgApresentacao("BEM VINDO AO PROJETO ! ");
+	
+	char *itensMenu[]={
+		               "MENU INICIAL ",
+    	               " -REALIZAR CADASTROS",
+	                   " -APRESENTAR DADOS",
+	                   " -PESQUISA",
+	                   " -ALTERAR",
+	                   " -EXCLUSAO",
+	                   " -FECHAR PROGRAMA",
+				   };
+      do
+      {
+	   	  limpaJanela(1,1,25,80,BLUE);
+	      opcao=menuVertical(7,itensMenu,WHITE,GREEN,10,10,2,1,BLUE,WHITE);
+	      retornaCor(BLUE,WHITE);
+      		  switch (opcao)
+		  {
+		  	  case 2:
+                menuCadastramentos(&qtdeAlunos);
+				break;
+			  case 3:
+				apresentacoes();
+                break;
+		  	  case 4:
+				pesquisas();
+			 	break;
+		      case 5:
+		      menuAlteracao();
+			   break;	  
+			   case 6:
+			   	menuExclusao();
+			   	break;
+			   case 7:
+			   	return 0;
+			   	break;
+		  }
+	  }while(opcao!=7);
+
+  getch();
+ // return 0;
+}
+//Objetivo: Apresentar o menu de alteracao
+//Parametros: nenhum
+//retorno:nenuhm
+void menuAlteracao()
+{
+	char opcao;
+	char *itensMenu[]={
+    	               " ALUNOS ",
+	                   " CURSO",
+	                   " MATRICULA",
+	                   " VOLTAR",
+				   };
+	  do
+      {
+	   	  limpaJanela(1,1,25,80,BLUE);
+	      opcao=menuVertical(4,itensMenu,WHITE,GREEN,10,10,1,1,BLUE,WHITE);
+	      retornaCor(BLUE,WHITE);
+		switch(opcao)
+		{
+			case 1:
+				alteraAluno();
+				break;
+			case 2:
+				printf("Manutencao \n");
+				break;
+			case 3:
+				printf("Ainda nao esta pronto \n");
+				break;
+			case 4:
+				return;
+			
+		}
+	}while(opcao !=5);
+	
+}
+//Objetivo:Apresentar o menu para exclusao
+//Parametros:nenhum
+//retorno:nenhum
+void menuExclusao()
+{
+	char opcao;
+	char *itensMenu[]={
+    	               " ALUNOS ",
+	                   " CURSO",
+	                   " MATRICULA",
+	                   " VOLTAR",
+				   };
+	 do
+      {
+	   	  limpaJanela(1,1,25,80,BLUE);
+	      opcao=menuVertical(4,itensMenu,WHITE,GREEN,10,10,1,1,BLUE,WHITE);
+	      retornaCor(BLUE,WHITE);
+		switch(opcao)
+		{
+			case 1:
+				excluiAluno();
+				break;
+			case 2:
+				printf("Manutencao \n");
+				break;
+			case 3:
+				printf("Ainda nao esta pronto \n");
+				break;
+			case 4:
+				return;
+			
+		}
+	}while(opcao !=5);
+				
+}
+//Objetivo: cadastra o menu de opcoes de cadastramento.
+//Parametros: referencia ao dados dos alunos, referencia a quantidade de alunos.
+//retorno:nenhum
+void menuCadastramentos(int *qtdeAlunos)
+{
+	char opcao;
+	    char *itensMenu[]={
+	    	           
+    	               " ALUNOS ",
+	                   " CURSO",
+	                   " MATRICULA",
+	                   " VOLTAR",
+				   };
+      do
+      {
+	   	  limpaJanela(1,1,25,80,BLUE);
+	      opcao=menuVertical(4,itensMenu,WHITE,GREEN,10,10,1,1,BLUE,WHITE);
+	      retornaCor(BLUE,WHITE);
+		switch(opcao)
+		{
+			case 1:
+				cadastraAlunos();
+				break;
+			case 2:
+				cadastraCurso();
+				break;
+			case 3:
+				printf("Ainda nao esta pronto \n");
+				break;
+			case 4:
+				return;
+			
+		}
+	}while(opcao !=5);
+	
+}
+//Objetivo:realizar cadastros dos cursos
+//Parametros:
+//Retorno:
+void cadastraCurso(void)
+{
+	Cursos cursos;
+	FILE *arqCursos;
+	desenhaMoldura(10,10,20,70,WHITE,BLACK);
+    gotoxy(11,11);
+    fflush(stdin);
+    leValidaTexto("NOME - ",cursos.nomeCurso,NOME_CURSO,11,11);
+    gotoxy(11,12);
+    cursos.codCurso=leInt("CODIGO - ",99,999,12,11);
+	gotoxy(11,13);
+	cursos.mensalidade=leInt("MENSALIDADE - ",50,9999,13,11);
+	gotoxy(11,14);	
+	cursos.horarios=leInt("CARGA HORARIA - ",20,220,11,14);
+	gotoxy(11,15);
+	if((arqCursos = abreArq("dadosCursos.txt","ab","Erro ao abrir o arquivo"))!=NULL)
+	{
+		if(fwrite(&cursos,sizeof(Aluno),1,arqCursos)==1)
+		{	
+			fprintf(stdout,"dados gravados ! \n");
+			fclose(arqCursos);
+		}else{
+			fprintf(stdout,"Houve um erro ao gravar os dados ! \n");
+			fclose(arqCursos);
+		}
+	}
+	
+	
+	getch();
+	clrscr();
+	
+}
+// função - cadastra os dados de um aluno, gravando-o em um arquivo
+// parâmetros - nenhum
+// retorno - nenhum
+void cadastraAlunos(void)
+{
+Aluno aluno;
+int flag;
+int verificador;
+  desenhaMoldura(10,10,20,70,WHITE,BLACK);
+  aluno.matricula=leInt("MATRICULA - ",MIN_MATRICULA,MAX_MATRICULA,11,11);
+  if(obtemMatriculaAluno(aluno.matricula)!=0)
+	{
+		printf("Matricula repetida \n ");
+		getche();
+		return;
+	}
+  fflush(stdin);
+  leValidaTexto("NOME - ",aluno.nomeAluno,MAX_NOME,11,12);
+  fflush(stdin);
+  do{
+  	verificador=1;
+	leValidaTexto("CPF - ",aluno.CPF,TAM_CPF,11,13);
+	verificador=validaCPF(aluno.CPF);
+	if(verificador==0)
+	{
+		apresentaMsgErro("CPF INVALIDO INFORME NOVAMENTE ","ERRO");
+	}
+}while(verificador==0);
+formataCPF(aluno.CPF);
+  gotoxy(11,14);
+  aluno.idade=leInt("IDADE - ",1,99,11,14);
+  gotoxy(11,15);
+  aluno.sexo=leValidaCaracter("SEXO -","MF",15,11);
+  gotoxy(11,16);
+  obtemDataHoraAtual(&aluno.dataDia,&aluno.dataMes,&aluno.dataAno);
+  printf("data obtida = %i/%i/%i ",aluno.dataDia,aluno.dataMes,aluno.dataAno);
+  gravaArquivo(aluno);  
+}
+//Objetivo:le e validar um caracter
+//Parametros:char *titulo,char *msgErro,char *opcoes
+//Retorno:letra
+char leValidaCaracter(char *titulo,char *opcoes,int linha,int coluna)
+{
+	
+	char letra;
+	int flag;
+	
+	do
+	{
+		flag=0;
+		fflush(stdin);
+        gotoxy(coluna,linha);
+        clreol();
+        fflush(stdin);
+        gotoxy(coluna,linha);
+		printf("%s",titulo);
+		fflush(stdin);
+		letra=getchar();
+		letra=toupper(letra);
+		fflush(stdin);
+		
+		if(strchr(opcoes,letra)==NULL)
+		{
+			
+			flag=1;
+			apresentaMsgErro("CARACTER INVALIDO ! ","ERRO");
+			
+		}
+	}while(flag);
+	system("cls");
+	
+	return letra;
+}
+//objetivo:ler um numero inteiro
+//parametro:titulo,limiteMinimo,limiteMaximo
+//retorno:numero
+int leInt(char *titulo,int limiteMinimo,int limiteMaximo,int coluna,int linha)
+{
+	int ret=0,numero;
+	
+	do
+	{
+		do
+		{	
+			fflush(stdin);
+			gotoxy(coluna,linha);
+			clreol();
+			fflush(stdin);
+			gotoxy(coluna,linha);
+			printf("%s",titulo);
+			fflush(stdin);
+			ret=scanf("%i",&numero);
+			fflush(stdin);
+			if(ret==0)
+			{
+				apresentaMsgErro("Informe um numero correto ","inteiro");
+				
+			}			
+		}while(ret==0);
+	}while(validaInt(numero,limiteMinimo,limiteMaximo)==0);
+
+	return numero;
+
+}
+//objetivo:validar um numero inteiro
+//parametro:numero,limiteMinimo,limiteMaximo
+//retorno: de acordo com a validacao (0 ou 1)
+int validaInt(int numero,int limiteMinimo,int limiteMaximo)
+{
+	if(numero<limiteMinimo || numero>limiteMaximo){
+		apresentaMsgErro("numero invalido informe novamente ! ","validacao");
+		return 0;
+	}
+	else
+			return 1;
+	
+}
+//objetivo: ler uma string
+//parametro: endereço inicial do titulo,endereço inicial da string,tamanho
+//retorno:nenhum
+void leValidaTexto(char *titulo,char *texto,int tamanho,int coluna,int linha)
+{
+	do
+	{
+		fflush(stdin);
+    	gotoxy(coluna,linha);
+    	clreol();
+    	fflush(stdin);
+    	gotoxy(coluna,linha);
+		printf("%s",titulo);
+		fflush(stdin);
+		fgets(texto,tamanho,stdin);
+		fflush(stdin);
+		tiraTerminador(texto);
+	}while(strlen(texto)<=1);
+}//objetivo:verificar se existe DDD repitido
+//parametro:DDD da cidade
+//retorno: 0 - nao existe , 1- n - posicao da cidade no arquivo
+int verificaMatriculaRepitido(int *matriculaAluno)
+{
+	FILE *arqAlunos;
+	Aluno aluno;
+	int flag=0,contadorPosicao=0;
+	
+	arqAlunos = fopen("alunos.txt","rb");
+	if(arqAlunos==NULL)
+	{
+		getch();
+	}
+	else
+	{
+		while(!feof(arqAlunos))
+		{
+			if(fread(&aluno,sizeof(Aluno),1,arqAlunos)==1)
+			{
+				contadorPosicao ++;
+				if(*matriculaAluno==aluno.matricula)
+				{
+                    flag=contadorPosicao;
+					break;
+				}
+			}
+			
+		}
+		fclose(arqAlunos);
+	}
+	return flag;
+}
+//objetivo:validar uma string
+//parametro:referencia ao vetor de nomes
+//retorno:nenhum
+void tiraTerminador(char *string)
+{
+	if(string[strlen(string)-1]=='\n')
+		string[strlen(string)-1]='\0';
+}
+//objetivo:gravar dados da Cidade no arquivo
+//parametro:estrutura de dados da Cidade,endereco de memoria da somaCidades
+//retorno:nenhum
+void gravaArquivo(Aluno aluno)
+{
+	FILE *arqAlunos;
+
+	arqAlunos = fopen("dadosAlunos.txt","ab");
+	if(arqAlunos==NULL)
+	{
+		printf("Erro ao abrir o arquivo \n");
+	}
+	else
+	{
+		if(fwrite(&aluno,sizeof(Aluno),1,arqAlunos)==1)
+		{
+			MessageBox(0,"DADOS GRAVADOS COM SUCESSO","ATENCAO",0);
+			
+    	}
+		fclose(arqAlunos);
+	}
+	getch();
+}
+//Objetivo: Obter a hora e a data Atual
+//Parametros: referencia a hora,minutos,dia,mes,ano.
+//Retorno: horarios resgatados do sistema
+void obtemDataHoraAtual(int *dia,int *mes, int *ano)
+{
+   time_t t;
+   struct tm *dataAtual;
+   t = time(NULL);
+   dataAtual = localtime(&t);
+   *dia    =dataAtual->tm_mday;
+   *mes    =dataAtual->tm_mon+1;
+   *ano    =1900+dataAtual->tm_year;
+}
+// Objetivo: recuperar o número de um aluno pela matrícula
+// Parâmetros: matricula
+// Retorno: 0 - nao existe ou 1..n - número do aluno
+int obtemMatriculaAluno(int matricula)
+{
+
+FILE *arqBin;
+Aluno dadosAlunos;
+int cont=0, nroFunc=0;
+	if((arqBin=fopen("dadosAlunos.txt","rb"))!=NULL){
+		while(!feof(arqBin)){
+			if(fread(&dadosAlunos,sizeof(Aluno),1,arqBin)==1){
+				cont++;
+				if(matricula==dadosAlunos.matricula){
+                    nroFunc=cont;
+					break;
+				}
+			}
+		}
+		fclose(arqBin);
+	}
+	return nroFunc;
+}
+// Objetivo: recuperar o numero de um curso pelo codigo
+// Parâmetros: codigo
+// Retorno: 0 - nao existe ou 1..n - número do aluno
+int obtemCodigoCurso(int codigo)
+{
+
+FILE *arqBin;
+Cursos curso;
+int cont=0, nroFunc=0;
+	if((arqBin=fopen("dadosCurso.txt","rb"))!=NULL){
+		while(!feof(arqBin)){
+			if(fread(&curso,sizeof(Cursos),1,arqBin)==1){
+				cont++;
+				if(codigo==curso.codCurso){
+                    nroFunc=cont;
+					break;
+				}
+			}
+		}
+		fclose(arqBin);
+	}
+	return nroFunc;
+}
+//Objetivo: apresentar os dados gravados no arquivo binario
+//Parametros: nenhum 
+//retorno: nenhum
+void apresentaAlunos()
+{
+	FILE *arqAlunos;
+	Aluno alunos; 
+    //desenhaMoldura(10,10,18,70,WHITE,BLACK);
+	if((arqAlunos=abreArq("dadosAlunos.txt","rb",""))!=NULL)
+	{	
+        
+		printf("%s|%8s|%5s|%12s|%11s","NOMES","IDADES","SEXO","MATRICULAS ","CPF \n");
+		while(!feof(arqAlunos))
+		{
+			if(fread(&alunos,sizeof(Aluno),1,arqAlunos)==1){
+				printf("_______________________________________________________\n");
+				printf("%s |%-8i|%5c|%12i|%s \n",alunos.nomeAluno,alunos.idade,alunos.sexo,alunos.matricula,alunos.CPF);
+				printf("data de ingresso = %i/%i/%i \n",alunos.dataDia,alunos.dataMes,alunos.dataAno);
+				printf("_______________________________________________________\n");
+			
+			}
+		}
+		 
+		fclose(arqAlunos);
+		getch();
+		clrscr();
+	}
+	else
+	{  
+		printf("Nao existem alunos cadastrados \n");
+	}
+	getch();
+	
+	
+}
+//Objetivo: apresentar os cursos cadastrados
+//Parametros:nenhum
+//Retorno: cursos cadastrados.
+void apresentaCursos()
+{
+	FILE *arqCursos;
+	Cursos curso;
+	if((arqCursos=abreArq("dadosAlunos.txt","rb",""))!=NULL)
+	{	
+        
+		printf("%s|%8i|%5i|%12i","NOME CURSO ","MENSALIDADE ","HORARIO","CODIGO CURSO \n");
+		while(!feof(arqCursos))
+		{
+			if(fread(&curso,sizeof(Cursos),1,arqCursos)==1){
+				printf("_______________________________________________________\n");
+				printf("%s|%8i|%5i|%12i\n",curso.nomeCurso,curso.mensalidade,curso.horarios,curso.codCurso);
+				printf("_______________________________________________________\n");
+			
+			}
+		}
+		 
+		fclose(arqCursos);
+		getch();
+		clrscr();
+	}
+	else
+	{  
+		printf("Nao existem alunos cadastrados \n");
+	}
+	getch();
+	
+	
+	
+	
+	
+	
+	
+}
+
+// Objetivo: ler os dados de um aluno a partir de um numero obtido.
+// Parâmetros: número do aluno, endereço de uma estrutura
+// Retorno : 0 - erro ou 1 ok 
+int leDadosAlunoPesquisado(int nroAluno, Aluno *dadosAlunos)
+{
+FILE *arqBin;
+int flag=0;
+
+	if((arqBin=fopen("dadosAlunos.txt","rb"))!=NULL){	
+        if(fseek(arqBin,sizeof(Aluno)*(nroAluno-1),SEEK_SET) ==0)
+        {
+        	if(fread(dadosAlunos,sizeof(Aluno),1,arqBin) ==1)
+        	{
+                flag=1;
+            }
+        }
+        fclose(arqBin);
+    }
+    return flag;
+}
+// Objetivo: ler os dados de um curso a partir de um numero obtido.
+// Parâmetros: número do curso, endereço de uma estrutura
+// Retorno : 0 - erro ou 1 ok 
+int leDadosCurso(int nroCurso, Cursos *curso)
+{
+FILE *arqBin;
+int flag=0;
+
+	if((arqBin=fopen("dadosCurso.txt","rb"))!=NULL){	
+        if(fseek(arqBin,sizeof(Cursos)*(nroCurso-1),SEEK_SET) ==0)
+        {
+        	if(fread(curso,sizeof(Cursos),1,arqBin) ==1)
+        	{
+                flag=1;
+            }
+        }
+        fclose(arqBin);
+    }
+    return flag;
+}
+//Objetivo:Pesquisar um aluno a partir de sua matricula.
+//Parametros:nenhum.
+//Retorno: dados do aluno pesquisado.
+void pesquisaAlunos()
+{
+	FILE *arqAlunos;
+	Aluno alunos;
+	int matriculaPesquisada;
+	int flag=0;
+	int nroAluno;
+	
+	
+	matriculaPesquisada=leInt("Informe a matricula que deseja pesquisar : ",MIN_MATRICULA,MAX_MATRICULA,1,1);
+	if((nroAluno = obtemMatriculaAluno(matriculaPesquisada))==0)
+	{
+		printf("Essa matricula nao foi encontrada \n ");
+	}
+	else
+	{
+		if(leDadosAlunoPesquisado(nroAluno,&alunos)==1)
+		{
+			printf("       NOME      - IDADE - SEXO - MATRICULA - CPF \n");
+			printf("%-16.16s-%-8i-%-7c-%-9i-%-11i \n",alunos.nomeAluno,alunos.idade,alunos.sexo,alunos.matricula,alunos.CPF);
+			printf("data de ingresso = %i/%i/%i \n",alunos.dataDia,alunos.dataMes,alunos.dataAno);
+			printf("____________________________________\n");
+			getch();
+			clrscr();
+
+		}
+		else
+		{
+			printf("Erro ao ler os dados do arquivo ! \n");
+		}
+	}
+}
+//Objetivos:Pesquisar um curso
+//Parametros:nenhum
+//Retorno: curso pesquisado
+void pesquisaCursos()
+{
+	FILE *arqCursos;
+	Cursos cursos;
+	int codigoPesquisado;
+	int flag=0;
+	int nroCurso;
+	
+	codigoPesquisado=leInt("Informe o codigo que deseja pesquisar : ",1,999,1,1);
+	if((nroCurso=obtemCodigoCurso(codigoPesquisado))==0)
+	{
+		printf("Esse codigo nao foi encontrado \n");
+	}
+	else
+	{
+		if(leDadosCurso(nroCurso,&cursos)==1)
+		{
+			printf("       NOME CURSO      - MENSALIDADE - HORARIOS - CODIGO \n");
+			printf("%-12.12s-%-8.8i-%-7.7i-%-6.6i",cursos.nomeCurso,cursos.mensalidade,cursos.horarios,cursos.codCurso);
+			printf("____________________________________\n");
+			getch();
+			clrscr();
+			
+		}
+		else
+		{
+			printf("Erro ao ler os dados do arquivo ! \n");
+		}
+	}
+	
+	
+}
+//Objetivo: Apresentar o menu de opcoes de pesquisa.
+//Parametros:nenhum.
+//Retorno:nenhum.
+void pesquisas()
+{
+		char opcao;
+		    char *itensMenu[]={
+	    	           
+    	               " ALUNOS ",
+	                   " CURSO  .",
+	                   " VOLTAR .",
+				   };
+      do
+      {
+	   	  limpaJanela(1,1,25,80,BLUE);
+	      opcao=menuVertical(3,itensMenu,WHITE,GREEN,10,10,1,1,BLUE,WHITE);
+	      retornaCor(WHITE,BLACK);
+
+		switch(opcao)
+		{
+			case 1:
+				
+				pesquisaAlunos();
+				break;
+			case 2:
+				pesquisaCursos();
+				break;
+			case 3:
+				return;
+				break;
+				
+			
+		}
+	}while(opcao!=3);
+}
+//Objetivo: apresentar o menu de opcoes de listagem.
+//Parametros: nenhum
+//retorno:nenhum
+void apresentacoes()
+{
+	char opcao;
+	
+		    char *itensMenu[]={
+	    	  
+    	               " APRESENTAR ALUNOS ",
+	                   " APRESENTAR CURSO",
+	                   " APRESENTAR MATRICULAS",
+	                   " VOLTAR",
+				   };
+      do
+      {
+	   	  limpaJanela(1,1,25,80,BLUE);
+	      opcao=menuVertical(4,itensMenu,WHITE,GREEN,10,10,1,1,BLUE,WHITE);
+	      retornaCor(BLUE,WHITE);
+		switch(opcao)
+		{
+			case 1:
+				apresentaAlunosV();
+				break;
+			case 2:
+				apresentaCursos();
+				break;
+			case 3:
+				printf("Ainda nao esta pronto \n");
+				break;
+			case 4:
+				return;
+				break;
+				
+			
+		}
+	}while(opcao!=4);
+
+}
+// Objetivo: Abrir/criar um arquivo
+// Parãmetros: endereço de memória com nome do arquivo,endereço com o modo de abertura
+//              endereço da mensagem de erro
+// Retorno : endereço para a stream
+FILE * abreArq(char *nomeArq, char *modoAbertura, char *mensErro)
+{
+FILE *arq;
+    if((arq = fopen(nomeArq,modoAbertura)) == NULL)
+	{
+		if(strlen(mensErro))
+		{
+		   printf("%s\n",mensErro);
+		   getch();
+	    }
+    }
+    return arq;
+}
