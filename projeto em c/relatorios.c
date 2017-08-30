@@ -24,108 +24,148 @@ void relatorio2(void)
 {
 	Aluno *alunos;
 	Cursos *curso;
+	static char cpfFormatado[15];
 	Matriculas *matricula;
 	char nomeDesejado[TAM_TEXTO];
 	char opcaoDesejada;
-	int qtdeAlunos,qtdeCursos,qtdeMatriculas,cont=0,i,linha;
+	int qtdeAlunos=0,qtdeCursos=0,qtdeMatriculas=0,cont=0,i,linha;
 	int cont2,cont3;
+	int codCurso;
+	int seq;
+	
 	if((alunos=obtemDadosArquivoAluno(&qtdeAlunos))!=NULL && (curso=obtemDadosArquivoCursos(&qtdeCursos))!=NULL && (matricula=obtemDadosArquivoMatriculas(&qtdeMatriculas))!=NULL )
 	{
 		desenhaMoldura(1,1,20,80,AZUL,BRANCO);
 		gotoxy(2,2);
-		leValidaTexto("Informe o nome completo do curso = ",nomeDesejado,TAM_TEXTO,11,11);
-		strToUpper(nomeDesejado);
-		limpaJanela(2,2,19,79,AZUL);
-		cont=0;
-		linha =3;
-		for(i=0;i<qtdeCursos;i++)
+		qsort(alunos,qtdeAlunos,sizeof(Aluno),comparaNomeAlunos);
+		//leValidaTexto("Informe o nome completo do curso = ",nomeDesejado,TAM_TEXTO,11,11);
+		//strToUpper(nomeDesejado);
+		//limpaJanela(2,2,19,79,AZUL);
+		fprintf(stdout,"SELECIONE O CURSO \n");
+		codCurso=apresentaCursosV();
+		seq = obtemCodigoCurso(codCurso);
+		if(seq!=0)
 		{
-			if(stricmp(curso[i].nomeCurso,nomeDesejado)==0)
+		
+			cont=0;
+			linha =3;
+			for(i=0;i<qtdeCursos;i++)
 			{
-				gotoxy(3,2);
-				fprintf(stdout,"Mostranto resultados para %s ",nomeDesejado);
-				fprintf(stdout,"Encontrado %s ",curso[i].nomeCurso);
-				opcaoDesejada=leValidaCaracter("A - CURSANDO B - CONCLUIDO OU C - AMBOS ","ABC",3,2);
-				system("cls");
-				if(linha >= 18)
+				if(codCurso==curso[i].codCurso)
 				{
-					gotoxy(2,linha);
-					fprintf(stdout,"Pressione alguma tecla para continuar \n");
-					getch();
-					limpaJanela(3,2,19,79,AZUL);
-					linha =3;
-				}
-				switch(opcaoDesejada)
-				{
-					case 'A':
-					
-					desenhaMoldura(2,2,29,79,AZUL,BRANCO);
-					gotoxy(3,1);
-					fprintf(stdout,"%-12.12s-%-21.21s -%-15.15s-%-10.10s ","CPF","NOME ALUNO","SITUACAO","CODIGO CURSO");
-					for(cont2=0;cont2<qtdeMatriculas;cont2++){
-						if(strcmp("CURSANDO",matricula[cont2].situacaoAluno)==0)
-						{
-							for(cont3=0;cont3<qtdeAlunos;cont3++){
-					
-								if(matricula[cont2].idAluno==alunos[cont3].matricula && matricula[cont2].idCurso==curso[i].codCurso)
-								{
-									gotoxy(3,linha);
-									linha++;
-									fprintf(stdout,"%-12.12s-%-21.21s %-15s-%-10i ",alunos[cont3].CPF,alunos[cont3].nomeAluno,
-									matricula[cont2].situacaoAluno,curso[i].codCurso);
-									cont++;
+				
+					desenhaMoldura(1,1,20,80,AZUL,BRANCO);
+					//fprintf(stdout,"Mostranto resultados para %s ",nomeDesejado);
+					gotoxy(3,2);
+					fprintf(stdout,"Curso escolhido (%s) ",curso[i].nomeCurso);
+					opcaoDesejada=leValidaCaracter("A - CURSANDO B - CONCLUIDO OU C - AMBOS ","ABC",3,2);
+					system("cls");
+					if(linha >= 18)
+					{
+						gotoxy(2,linha);
+						fprintf(stdout,"Pressione alguma tecla para continuar \n");
+						getch();
+						limpaJanela(3,2,19,79,AZUL);
+						linha =3;
+					}
+					switch(opcaoDesejada)
+					{
+						case 'A':
+						
+						desenhaMoldura(2,2,29,79,AZUL,BRANCO);
+						
+						gotoxy(3,1);
+						fprintf(stdout,"%-15.15s-%-21.21s -%-15.15s-%-14.14s ","CPF","NOME ALUNO","SITUACAO","CODIGO CURSO");
+						for(cont2=0;cont2<qtdeMatriculas;cont2++){
+							if(matricula[cont2].situacaoAluno=='C')
+							{
+								for(cont3=0;cont3<qtdeAlunos;cont3++){
+									
+									if(matricula[cont2].idAluno==alunos[cont3].matricula && matricula[cont2].idCurso==curso[i].codCurso)
+									{
+										sprintf(cpfFormatado,"%3.3s.%3.3s.%3.3s-%2.2s",
+       									alunos[cont3].CPF,alunos[cont3].CPF+3,alunos[cont3].CPF+6,alunos[cont3].CPF+9);
+										strcpy(alunos[cont3].CPF,cpfFormatado);
+								   	
+										gotoxy(3,linha);
+										linha++;
+										fprintf(stdout,"%-15.15s-%-21.21s %-15s-%-14i ",alunos[cont3].CPF,alunos[cont3].nomeAluno,
+										"CURSANDO",curso[i].codCurso);
+										cont++;
+									}
 								}
 							}
 						}
-					}
-					break;
-					case 'B':
-					desenhaMoldura(2,2,20,79,AZUL,BRANCO);
-					gotoxy(3,1);
-					fprintf(stdout,"%-12.12s-%-21.21s -%-15.15s-%-10.10s ","CPF","NOME ALUNO","SITUACAO","CODIGO CURSO");
-					for(cont2=0;cont2<qtdeMatriculas;cont2++){
-						if(strcmp("CONCLUIDO",matricula[cont2].situacaoAluno)==0)
-						{
-							for(cont3=0;cont3<qtdeAlunos;cont3++){
-					
-								if(matricula[cont2].idAluno==alunos[cont3].matricula && matricula[cont2].idCurso==curso[i].codCurso)
-								{
-									gotoxy(3,linha);
-									linha++;
-									fprintf(stdout,"%-12.12s-%-21.21s %-15s-%-10i ",alunos[cont3].CPF,alunos[cont3].nomeAluno,
-									matricula[cont2].situacaoAluno,curso[i].codCurso);
-									cont++;
-							 	}
-							 	
+						break;
+						case 'B':
+						desenhaMoldura(2,2,20,79,AZUL,BRANCO);
+						
+						gotoxy(3,1);
+						fprintf(stdout,"%-15.15s-%-21.21s -%-15.15s-%-14.14s ","CPF","NOME ALUNO","SITUACAO","CODIGO CURSO");
+						for(cont2=0;cont2<qtdeMatriculas;cont2++){
+							if(matricula[cont2].situacaoAluno=='F')
+							{
+								for(cont3=0;cont3<qtdeAlunos;cont3++){
+								
+									if(matricula[cont2].idAluno==alunos[cont3].matricula && matricula[cont2].idCurso==curso[i].codCurso)
+									{
+										sprintf(cpfFormatado,"%3.3s.%3.3s.%3.3s-%2.2s",
+       									alunos[cont3].CPF,alunos[cont3].CPF+3,alunos[cont3].CPF+6,alunos[cont3].CPF+9);
+										strcpy(alunos[cont3].CPF,cpfFormatado);
+										gotoxy(3,linha);
+										linha++;
+										fprintf(stdout,"%-15.15s-%-21.21s %-15s-%-14i ",alunos[cont3].CPF,alunos[cont3].nomeAluno,
+										"CONCLUIDO",curso[i].codCurso);
+										cont++;
+								 	}
+								 	
+								}
 							}
 						}
+						break;
+				    	case 'C':
+				    	
+				    	desenhaMoldura(2,2,20,79,AZUL,BRANCO);
+				    
+				    	gotoxy(3,1);
+				    	fprintf(stdout,"%-15.15s-%-21.21s -%-15.15s-%-14.14s ","CPF","NOME ALUNO","SITUACAO","CODIGO CURSO");
+				    	for(cont2=0;cont2<qtdeMatriculas;cont2++)
+						{
+								for(cont3=0;cont3<qtdeAlunos;cont3++){
+									
+									if(matricula[cont2].idAluno==alunos[cont3].matricula && matricula[cont2].idCurso==curso[i].codCurso)
+									{
+										if(matricula[cont2].situacaoAluno=='C')
+										{
+											sprintf(cpfFormatado,"%3.3s.%3.3s.%3.3s-%2.2s",
+       										alunos[cont3].CPF,alunos[cont3].CPF+3,alunos[cont3].CPF+6,alunos[cont3].CPF+9);
+											strcpy(alunos[cont3].CPF,cpfFormatado);											
+											gotoxy(3,linha);
+											linha++;
+											fprintf(stdout,"%-15.15s-%-21.21s %-15s-%-14i ",alunos[cont3].CPF,alunos[cont3].nomeAluno,
+											"CURSANDO",curso[i].codCurso);
+											cont++;
+										}else
+										{
+											sprintf(cpfFormatado,"%3.3s.%3.3s.%3.3s-%2.2s",
+       										alunos[cont3].CPF,alunos[cont3].CPF+3,alunos[cont3].CPF+6,alunos[cont3].CPF+9);
+											strcpy(alunos[cont3].CPF,cpfFormatado);											
+											gotoxy(3,linha);
+											linha++;
+											fprintf(stdout,"%-15.15s-%-21.21s %-15s-%-14i ",alunos[cont3].CPF,alunos[cont3].nomeAluno,
+											"CONCLUIDO",curso[i].codCurso);
+											cont++;
+										}
+								 	}
+								}
+								
+						}
+	
+					
+						break;		
 					}
-					break;
-			    	case 'C':
-			    	
-			    	desenhaMoldura(2,2,20,79,AZUL,BRANCO);
-			    	gotoxy(3,1);
-			    	fprintf(stdout,"%-12.12s-%-21.21s -%-15.15s-%-10.10s ","CPF","NOME ALUNO","SITUACAO","CODIGO CURSO");
-			    	for(cont2=0;cont2<qtdeMatriculas;cont2++)
-					{
-							for(cont3=0;cont3<qtdeAlunos;cont3++){
-								if(matricula[cont2].idAluno==alunos[cont3].matricula && matricula[cont2].idCurso==curso[i].codCurso)
-								{
-									gotoxy(3,linha);
-									linha++;
-									fprintf(stdout,"%-12.12s-%-21.21s %-15s-%-10i ",alunos[cont3].CPF,alunos[cont3].nomeAluno,
-									matricula[cont2].situacaoAluno,curso[i].codCurso);
-									cont++;
-							 	}
-							}
-							
-					}
-
-				
-					break;		
 				}
 			}
-			
 		}
 		if(cont==0)
 		{
@@ -154,27 +194,28 @@ void relatorio2(void)
 void relatorio3(void)
 {
 FILE *arqBin;
-int cont=0,qtdeCursos,i,linha;
+int cont=0,qtdeCursos=0,i,linha;
 Cursos *curso;
 char pesquisaCurso[NOME_CURSO];
-    if((curso = obtemDadosArquivoCursos(&qtdeCursos))!=NULL){
-    	desenhaMoldura(10,10,14,70,AZUL,BRANCO);
-    	gotoxy(11,11);
 
-		leValidaTexto("Trecho que deseja procurar - ",pesquisaCurso,NOME_CURSO,11,12);
-		//strToUpper(pesquisaCurso);
-		limpaJanela(10,10,14,70,AZUL);
-		gotoxy(2,2);
-		//fprintf(stdout,"Cursos com o nome = %s \n",pesquisaCurso);
+	desenhaMoldura(10,10,14,70,AZUL,BRANCO);
+	gotoxy(11,11);
+
+	leValidaTexto("Trecho que deseja procurar - ",pesquisaCurso,NOME_CURSO,11,12);
+	//strToUpper(pesquisaCurso);
+	limpaJanela(10,10,14,70,AZUL);
+	gotoxy(2,2);
+	//fprintf(stdout,"Cursos com o nome = %s \n",pesquisaCurso);
+	if((curso = obtemDadosPorNome(&qtdeCursos,pesquisaCurso))!=NULL)
+	{
+	
 		cont=0;
 		linha =3;
-    	fprintf(stdout,"%s %-29s%-5s %5s\n","CODIGO","NOME DO CURSO","CARGA HORARIA","MENSALIDADE");
-    	
+    	fprintf(stdout,"%-10.10s-%-30.30s-%-13.13s-%-13.13s\n","CODIGO","NOME DO CURSO","CARGA HORARIA","MENSALIDADE");
+    	qsort(curso,qtdeCursos,sizeof(Cursos),comparaNomeCursos);
 		for(i=0;i<qtdeCursos;i++){
-			qsort(curso,qtdeCursos,sizeof(Cursos),comparaNomeCursos);
-		
-			if(strIstr(curso[i].nomeCurso,pesquisaCurso)!= NULL)	
-			{   
+			
+	
 				
 				/*if(linha>=18)
 				{
@@ -185,12 +226,11 @@ char pesquisaCurso[NOME_CURSO];
 					linha=3;
 				}
 				*/
-				desenhaMoldura(1,1,20,70,AZUL,BRANCO);
-				gotoxy(2,linha);
-				linha++;				
-				fprintf(stdout,"%5i - %-30.30s - %-5i - %-5.2f \n",curso[i].codCurso,curso[i].nomeCurso,curso[i].horarios,curso[i].mensalidade);
-				cont++;
-			}
+			desenhaMoldura(1,1,linha+1,72,AZUL,BRANCO);
+			gotoxy(2,linha);
+			linha++;				
+			fprintf(stdout,"%-10i-%-30.30s-%-13i-%-13.2f \n",curso[i].codCurso,curso[i].nomeCurso,curso[i].horarios,curso[i].mensalidade);
+			cont++;
 		}
 		if(cont==0)
 		{
@@ -208,6 +248,39 @@ char pesquisaCurso[NOME_CURSO];
 	}
 	getch();
 }
+//Objetivo: Obtem os dados necessarios, a partir de parte do nome desejado
+//Parametros: referencia a quantidade e ao nome desejado.
+//Retorno: endereço da estrutura com os dados necessarios.
+Cursos *obtemDadosPorNome(int *qtde,char *nomeDesejado)
+{
+	FILE *arqCurso=NULL;
+	Cursos *curso=NULL,*cursoAux=NULL;
+	if((arqCurso=abreArquivo("dadosCursos.txt","rb"))!=NULL)
+	{
+		while(!feof(arqCurso))
+		{
+			curso=(Cursos*)realloc(cursoAux,sizeof(Cursos)*((*qtde)+1));
+			if(curso!=NULL)
+			{
+				cursoAux=curso;
+				if(fread(&cursoAux[*qtde],sizeof(Cursos),1,arqCurso)==1)
+				{
+					if(strIstr(cursoAux[*qtde].nomeCurso,nomeDesejado)!=NULL)
+					{
+						(*qtde)++;	
+					}	
+				}
+				
+			}else
+			{
+				printf("Erro de alocacao de memoria ");
+			}
+		}
+		fclose(arqCurso);
+	}
+	return cursoAux;
+	
+}
 // Objetivo: pesquisar anos que concluiram o curso em determinadoa ano 
 // Parâmetros: nenhum
 // Retorno: nenhum
@@ -215,50 +288,161 @@ void relatorio6()
 {
 	int escolheCurso,escolheAno;
 	Matriculas *matricula;
+	/*----------------------------PARA DADOS DOS NOMES-----------------------------------------------*/
+	Aluno alunos;
+	Cursos curso;
+	FILE *arqAlunos;
+	FILE *arqCursos;
     FILE *arqBin;
+    char **nomesAlunos=NULL;
+	char **nomesAlunosAux;
+	char **nomesCursoAux;
+	char **nomesCurso=NULL;
+	char **sitCurso=NULL;
+	char **sitAluno=NULL;
+	char **sitCursoAux;
+	char **sitAlunoAux;
+	/*-----------------------------PARA DADOS DOS NOMES----------------------------------------------*/
     int cont=0,aux, nroAluno=0;	
-	int linha,qtdeMatriculas;
+    int cont2=0;  //nomeAluno
+    int cont3=0; //nomeCurso
+    int cont4=0; //sitCurso
+    int cont1=0; //sit aluno
+	int linha,qtdeMatriculas=0;
 	escolheCurso=apresentaCursosV();
+
 	desenhaMoldura(10,10,20,90,AZUL,BRANCO);
-	
-	escolheAno=leInt("INFORME O ANO QUE CONCLUIU O CURSO- ",2000,2016,11,11);
+	escolheAno=leInt("INFORME O ANO QUE CONCLUIU O CURSO- ",2016,2050,11,11);
 	system("cls");
-	if((matricula = obtemDadosArquivoMatriculas(&qtdeMatriculas))!=NULL)
+	if((matricula = obtemCursosFinalizados(&qtdeMatriculas,escolheCurso,escolheAno,'F'))!=NULL)
 	{
 		
 		linha=11;
+		//qsort(matricula,qtdeMatriculas,sizeof(Matriculas),comparaNomesMatricula);
+		
 		for(aux=0;aux<qtdeMatriculas;aux++)
 		{
-			//qsort(matricula,qtdeMatriculas,sizeof(Matriculas),comparaNomesMatricula);
-			if(escolheCurso==matricula[aux].idCurso && escolheAno==matricula[aux].ano)
+			nomesAlunosAux=(char**) realloc(nomesAlunos,sizeof(char*)*(cont2+1));
+			if(nomesAlunosAux!=NULL)
 			{
-				
-				if(stricmp(matricula[aux].situacaoAluno,"CONCLUIDO")==0)
+				nomesAlunos=nomesAlunosAux;
+				nomesAlunos[cont2]=(char*)malloc(sizeof(char)*(MAX_NOME+1));
+				if(nomesAlunos[cont2]!=NULL)
 				{
-					
-					//fprintf(stdout,"entrou %i %i ",escolheCurso,escolheAno);
-					//printf("%5i - %-6i - %-5s - %-8s %i/%i \n",matricula[aux].idAluno,matricula[aux].idCurso,matricula[aux].situacaoAluno,matricula[aux].situacaoCurso,matricula[aux].mes,matricula[aux].ano);
-				
-					//fprintf(stdout,"entrou %i %i ",escolheCurso,escolheAno);
-	    	  		//system("cls");
-			 		desenhaMoldura(10,10,20,120,AZUL,BRANCO);                                                                          
-			   		gotoxy(11,9);
-					fprintf(stdout,"%-9.9s %-25.25s%-18.18s %-10.10s %-15.15s %-15.15s %s","MATRICULA","NOME ALUNO ","NOME CURSO","ID CURSO","SITUACAO ALUNO ","SITUACAO CURSO","DATA");
-					gotoxy(11,linha);
-					linha++;
-	    	   		fprintf(stdout,"%-9i%-25.25s %-18.18s %-10i %-15s %-15s  %i/%i \n",matricula[aux].idAluno,matricula[aux].nomeMatriculado,matricula[aux].nomeCursoMatriculado,matricula[aux].idCurso,matricula[aux].situacaoAluno,matricula[aux].situacaoCurso,matricula[aux].mes,matricula[aux].ano);
-					cont++;
+					if((arqAlunos = abreArquivo("dadosAlunos.txt","rb"))!=NULL)          
+					{
+																								
+						while(!feof(arqAlunos))
+						{
+							if(fread(&alunos,sizeof(Aluno),1,arqAlunos)==1)
+							{
+								//printf("%i %i ",matricula.idAluno,alunos.matricula);
+								
+								if(matricula[aux].idAluno==alunos.matricula)
+								{
+									strcpy(nomesAlunos[cont2],alunos.nomeAluno);
+									
+									cont2++;
+								}
+							
+								//printf("%s ",nomesAlunos[contador]);
+							}
+						}
+						fclose(arqAlunos);
+					}
 					
 				}
 			}
+			nomesCursoAux=(char**) realloc(nomesCurso,sizeof(char*)*(cont3+1));
+			if(nomesCursoAux!=NULL)
+			{
+				nomesCurso=nomesCursoAux;
+				nomesCurso[cont3]=(char*)malloc(sizeof(char)*(MAX_NOME+1));
+				if(nomesCurso[cont3]!=NULL)
+				{
+					if((arqCursos = abreArquivo("dadosCursos.txt","rb"))!=NULL)
+					{
+						while(!feof(arqCursos))
+						{
+							if(fread(&curso,sizeof(Cursos),1,arqCursos)==1)
+							{
+								if(matricula[aux].idCurso==curso.codCurso)
+								{
+									strcpy(nomesCurso[cont3],curso.nomeCurso);
+									cont3++;
+								}
+							}
+						}
+						fclose(arqCursos);
+					}
+				}
+			}
+			sitCursoAux=(char**) realloc(sitCurso,sizeof(char*)*(cont4+1));
+			if(sitCursoAux!=NULL)
+			{
+				sitCurso=sitCursoAux;
+				sitCurso[cont4]=(char*)malloc(sizeof(char)*(TAM_SITUACAO+1));
+				if(sitCurso[cont4]!=NULL)
+				{
+					
+						
 			
+					if(matricula[aux].situacaoCurso=='R')
+					{
+						strcpy(sitCurso[cont4],"REGULAR");
+					}else
+					{
+						if(matricula[aux].situacaoCurso=='P')
+						{
+							strcpy(sitCurso[cont4],"PENDENTE");
+						}else{
+							strcpy(sitCurso[cont4],"PAGO");
+						}
+					}
+					cont4++;
+							
+						
+				
+					
+				}
+			}
+			sitAlunoAux=(char**) realloc(sitAluno,sizeof(char*)*(cont1+1));
+			if(sitAlunoAux!=NULL)
+			{
+				sitAluno=sitAlunoAux;
+				sitAluno[cont1]=(char*)malloc(sizeof(char)*(TAM_SITUACAO+1));
+				if(sitAluno[cont1]!=NULL)
+				{
+						
+					if(matricula[aux].situacaoAluno=='F')
+					{
+						strcpy(sitAluno[cont1],"CONCLUIDO");
+					}else
+					{
+						strcpy(sitAluno[cont1],"CURSANDO");
+					}
+					cont1++;
+					
+				}
+			}
+			//qsort(matricula,qtdeMatriculas,sizeof(Matriculas),comparaMatriculas);
+			desenhaMoldura(10,10,linha+1,120,AZUL,BRANCO);                                                            
+		   	gotoxy(11,9);
+			fprintf(stdout,"%-9.9s %-25.25s%-18.18s %-10.10s %-15.15s %-15.15s %5.5s","MATRICULA","NOME ALUNO ","NOME CURSO","ID CURSO","SITUACAO ALUNO ","SITUACAO CURSO","DATA");
+			gotoxy(11,linha);
+			linha++;	
+    	   	fprintf(stdout,"%-9i %-25.25s %-18.18s %-10i %-15.15s %-15.15s  %i/%i    \n",matricula[aux].idAluno,nomesAlunos[aux],nomesCurso[aux],matricula[aux].idCurso,sitAluno[aux],sitCurso[aux],matricula[aux].mes,matricula[aux].ano);
+			cont++;
+					
 		}
 		if(cont==0)
-		{
-			gotoxy(5,5);
+		{	
+			desenhaMoldura(10,10,20,90,AZUL,BRANCO);
+			gotoxy(11,11);
 			fprintf(stdout,"Nao foi encontrado resultados  \n");	
 		}	
 		free(matricula);
+	
 		
 	
 	}else
@@ -267,11 +451,46 @@ void relatorio6()
 		gotoxy(20,12);
 		fprintf(stdout,"Nao foi possivel carregar dados do arquivo ");
 	}
-	
+	free(sitAluno);
+	free(sitCurso);
+	free(nomesAlunos);
+	free(nomesCurso);
 	
 	
 	getch();
 	system("cls");
+}
+//Objetivo: Verificar o curso e o ano desejado pelo usuario, para resgatar os alunos finalizados.
+//Parametros: referencia a quantidade de matriculas, id do curso, e ano desejado
+//Retorno: endereço da estrutura com os dados necessarios.
+Matriculas *obtemCursosFinalizados(int *qtde, int escolheCurso, int escolheAno, char escolheSituacao)
+{
+	FILE *arq=NULL;
+	Matriculas *matricula=NULL,*matriculaAux=NULL;
+	if((arq=abreArquivo("dadosMatriculas.txt","rb"))!=NULL)
+	{
+		while(!feof(arq))
+		{
+			matricula=(Matriculas*)realloc(matriculaAux,sizeof(Matriculas)*((*qtde)+1));
+			if(matricula!=NULL)
+			{
+				matriculaAux=matricula;
+				if(fread(&matriculaAux[*qtde],sizeof(Matriculas),1,arq)==1)
+				{
+					if(escolheCurso==matriculaAux[*qtde].idCurso && escolheAno==matriculaAux[*qtde].ano && escolheSituacao==matriculaAux[*qtde].situacaoAluno)
+					{
+						(*qtde)++;
+					}
+				}
+			}else
+			{
+				printf("Erro ao alocar memoria \n");
+			}
+		}
+		fclose(arq);
+	}
+	
+	return matriculaAux;
 }
 // Objetivo: menu com as opçoes do relatorio 5(sobre a situaçao do aluno) 
 // Parâmetros: nenhum
@@ -311,36 +530,117 @@ void relatorio5(void)
 	
 				   
 }
-// Objetivo: monstra apenas os alunos que estao na situaçao PENDENDE
+// Objetivo: monstra apenas os alunos que estao na situaçao PENDENTE
 // Parâmetros: nenhum
 // Retorno: nenhum
 void opcaoPendente()
 {
-FILE *arqBin;
-Matriculas *matricula;
-int cont=0, nroAluno=0;
-int aux,linha;
-int qtdeMatriculas;
+	FILE *arqBin;
+	Matriculas *matricula;
+	Matriculas matriculaAux;
+	char **dadosSit=NULL,**dadosSitAux;
+	char **dadosSitCurso=NULL,**dadosSitCursoAux;
+	FILE *arqMatricula;
+	char **nomesAlunos=NULL;
+	char **nomesAlunosAux;	
+	Aluno alunos;
+	FILE *arqAlunos;	
+	int cont=0, nroAluno=0;
+	int cont2=0;
+	int cont3=0;
+	int cont4=0;
+	int aux,linha;
+	int qtdeMatriculas=0;
 	system("cls");
-	if((matricula = obtemDadosArquivoMatriculas(&qtdeMatriculas))!=NULL)
+	if((matricula = obtemDadosSituacao(&qtdeMatriculas,'P'))!=NULL)
 	{
 		linha=11;
-		for(aux=0;aux<qtdeMatriculas;aux++)
-		{
-			qsort(matricula,qtdeMatriculas,sizeof(Matriculas),comparaNomesMatricula);
-			if(stricmp(matricula[aux].situacaoCurso,"PENDENTE")==0)
-			{    
-			//	qsort(matricula,qtdeMatriculas,sizeof(Matriculas),comparaNomesMatricula);
-			//system("cls");
-				desenhaMoldura(10,10,20,90,AZUL,BRANCO);
-	        	
-	        	gotoxy(11,9);
-				fprintf(stdout,"%-18s %-6s %-5s %5s %s","NOME","ID CURSO","SITUACAO ALUNO ","SITUACAO CURSO","DATA");
-				gotoxy(11,linha);
-				linha++;
-            	printf("%-18.18s - %-6i - %-5s - %-8s %i/%i \n",matricula[aux].nomeMatriculado,matricula[aux].idCurso,matricula[aux].situacaoAluno,matricula[aux].situacaoCurso,matricula[aux].mes,matricula[aux].ano);
-				cont++;
-			}
+
+		desenhaMoldura(10,10,20,90,AZUL,BRANCO);
+	    for(aux=0;aux<qtdeMatriculas;aux++){
+	    	
+			nomesAlunosAux=(char**) realloc(nomesAlunos,sizeof(char*)*(cont4+1));
+				if(nomesAlunosAux!=NULL)
+				{
+					nomesAlunos=nomesAlunosAux;
+					nomesAlunos[cont4]=(char*)malloc(sizeof(char)*(MAX_NOME+1));
+					if(nomesAlunos[cont4]!=NULL)
+					{
+						if((arqAlunos = abreArquivo("dadosAlunos.txt","rb"))!=NULL)          
+						{
+																									
+							while(!feof(arqAlunos))
+							{
+								if(fread(&alunos,sizeof(Aluno),1,arqAlunos)==1)
+								{
+									//printf("%i %i ",matricula.idAluno,alunos.matricula);
+									
+									if(matricula[aux].idAluno==alunos.matricula)
+									{
+										strcpy(nomesAlunos[cont4],alunos.nomeAluno);
+										cont4++;
+									}
+									//printf("%s ",nomesAlunos[contador]);
+								}
+							}
+							fclose(arqAlunos);
+						}
+						
+					}
+				}
+				dadosSitAux=(char**) realloc(dadosSit,sizeof(char*)*(cont2+1));
+				if(dadosSitAux!=NULL)
+				{
+					dadosSit=dadosSitAux;
+					dadosSit[cont2]=(char*)malloc(sizeof(char)*(TAM_SITUACAO+1));
+					if(dadosSit[cont2]!=NULL)
+					{
+						//printf("%c ",matricula.situacaoAluno);
+						if(matricula[aux].situacaoAluno=='C')
+						{
+							strcpy(dadosSit[cont2],"CURSANDO");
+						}else{
+							strcpy(dadosSit[cont2],"CONCLUIDO");
+						
+						}
+						//printf("%s ",dadosSit[cont2]);
+						cont2++;
+					}
+				}
+				//printf("%s %c \n",dadosSit[cont2],matricula.situacaoAluno);
+				dadosSitCursoAux=(char**) realloc(dadosSitCurso,sizeof(char*)*(cont3+1));
+				if(dadosSitCursoAux!=NULL)
+				{
+					dadosSitCurso=dadosSitCursoAux;
+					dadosSitCurso[cont3]=(char*) malloc(sizeof(char)*(TAM_SITUACAO+1));
+					if(dadosSitCurso[cont3]!=NULL)
+					{
+					
+					
+						if(matricula[aux].situacaoCurso=='R')
+						{
+							strcpy(dadosSitCurso[cont3],"REGULAR");
+						}else
+						{
+							if(matricula[aux].situacaoCurso=='P')
+							{
+								strcpy(dadosSitCurso[cont3],"PENDENTE");
+							}else
+							{
+								strcpy(dadosSitCurso[cont3],"PAGO");
+							}
+						}
+						cont3++;
+					}
+				}
+				
+	       	gotoxy(11,9);
+			fprintf(stdout,"%-18s %-6s %-5s %5s %s","NOME","ID CURSO","SITUACAO ALUNO ","SITUACAO CURSO","DATA");
+			gotoxy(11,linha);
+			linha++;
+           	printf("%-18.18s - %-6i - %-5s - %-8s %i/%i \n",nomesAlunos[aux],matricula[aux].idCurso,dadosSit[aux],dadosSitCurso[aux],matricula[aux].mes,matricula[aux].ano);
+			cont++;
+			
 		}
 		if(cont==0)
 		{
@@ -355,6 +655,9 @@ int qtdeMatriculas;
 		gotoxy(20,12);
 		fprintf(stdout,"Nao foi possivel carregar dados do arquivo ");
 	}
+	free(dadosSit);
+	free(dadosSitCurso);
+	free(nomesAlunos);
 	getch();
 	system("cls");
 }
@@ -363,31 +666,113 @@ int qtdeMatriculas;
 // Retorno: nenhum
 void opcaoPago()
 {
-FILE *arqBin;
-Matriculas *matricula;
-int cont=0, nroAluno=0;
-int aux,linha;
-int qtdeMatriculas;
+		FILE *arqBin;
+	Matriculas *matricula;
+	Matriculas matriculaAux;
+	char **dadosSit=NULL,**dadosSitAux;
+	char **dadosSitCurso=NULL,**dadosSitCursoAux;
+	FILE *arqMatricula;
+	char **nomesAlunos=NULL;
+	char **nomesAlunosAux;	
+	Aluno alunos;
+	FILE *arqAlunos;	
+	int cont=0, nroAluno=0;
+	int cont2=0;
+	int cont3=0;
+	int cont4=0;
+	int aux,linha;
+	int qtdeMatriculas=0;
 	system("cls");
-	if((matricula = obtemDadosArquivoMatriculas(&qtdeMatriculas))!=NULL)
+	if((matricula = obtemDadosSituacao(&qtdeMatriculas,'F'))!=NULL)
 	{
 		linha=11;
-		for(aux=0;aux<qtdeMatriculas;aux++)
-		{
-			qsort(matricula,qtdeMatriculas,sizeof(Matriculas),comparaNomesMatricula);
-			if(stricmp(matricula[aux].situacaoCurso,"PAGO")==0)
-			{    
-			//	qsort(matricula,qtdeMatriculas,sizeof(Matriculas),comparaNomesMatricula);
-			//system("cls");
-				desenhaMoldura(10,10,20,90,AZUL,BRANCO);
-	        	
-	        	gotoxy(11,9);
-				fprintf(stdout,"%-18s %-6s %-5s %5s %s","NOME","ID CURSO","SITUACAO ALUNO ","SITUACAO CURSO","DATA");
-				gotoxy(11,linha);
-				linha++;
-            	printf("%-18.18s - %-6i - %-5s - %-8s %i/%i \n",matricula[aux].nomeMatriculado,matricula[aux].idCurso,matricula[aux].situacaoAluno,matricula[aux].situacaoCurso,matricula[aux].mes,matricula[aux].ano);
-				cont++;
-			}
+
+		desenhaMoldura(10,10,20,90,AZUL,BRANCO);
+	    for(aux=0;aux<qtdeMatriculas;aux++){
+	    	
+			nomesAlunosAux=(char**) realloc(nomesAlunos,sizeof(char*)*(cont4+1));
+				if(nomesAlunosAux!=NULL)
+				{
+					nomesAlunos=nomesAlunosAux;
+					nomesAlunos[cont4]=(char*)malloc(sizeof(char)*(MAX_NOME+1));
+					if(nomesAlunos[cont4]!=NULL)
+					{
+						if((arqAlunos = abreArquivo("dadosAlunos.txt","rb"))!=NULL)          
+						{
+																									
+							while(!feof(arqAlunos))
+							{
+								if(fread(&alunos,sizeof(Aluno),1,arqAlunos)==1)
+								{
+									//printf("%i %i ",matricula.idAluno,alunos.matricula);
+									
+									if(matricula[aux].idAluno==alunos.matricula)
+									{
+										strcpy(nomesAlunos[cont4],alunos.nomeAluno);
+										//printf("%s ",nomesAlunos[contador]);
+										cont4++;
+									}
+									//printf("%s ",nomesAlunos[contador]);
+								}
+							}
+							fclose(arqAlunos);
+						}
+						
+					}
+				}
+				dadosSitAux=(char**) realloc(dadosSit,sizeof(char*)*(cont2+1));
+				if(dadosSitAux!=NULL)
+				{
+					dadosSit=dadosSitAux;
+					dadosSit[cont2]=(char*)malloc(sizeof(char)*(TAM_SITUACAO+1));
+					if(dadosSit[cont2]!=NULL)
+					{
+						//printf("%c ",matricula.situacaoAluno);
+						if(matricula[aux].situacaoAluno=='C')
+						{
+							strcpy(dadosSit[cont2],"CURSANDO");
+						}else{
+							strcpy(dadosSit[cont2],"CONCLUIDO");
+						
+						}
+						//printf("%s ",dadosSit[cont2]);
+						cont2++;
+					}
+				}
+				//printf("%s %c \n",dadosSit[cont2],matricula.situacaoAluno);
+				dadosSitCursoAux=(char**) realloc(dadosSitCurso,sizeof(char*)*(cont3+1));
+				if(dadosSitCursoAux!=NULL)
+				{
+					dadosSitCurso=dadosSitCursoAux;
+					dadosSitCurso[cont3]=(char*) malloc(sizeof(char)*(TAM_SITUACAO+1));
+					if(dadosSitCurso[cont3]!=NULL)
+					{
+					
+					
+						if(matricula[aux].situacaoCurso=='R')
+						{
+							strcpy(dadosSitCurso[cont3],"REGULAR");
+						}else
+						{
+							if(matricula[aux].situacaoCurso=='P')
+							{
+								strcpy(dadosSitCurso[cont3],"PENDENTE");
+							}else
+							{
+								strcpy(dadosSitCurso[cont3],"PAGO");
+							}
+						}
+						cont3++;
+					}
+				}
+				
+	       	gotoxy(11,9);
+			fprintf(stdout,"%-18s %-6s %-5s %5s %s","NOME","ID CURSO","SITUACAO ALUNO ","SITUACAO CURSO","DATA");
+			gotoxy(11,linha);
+			linha++;
+           	printf("%-18.18s - %-6i - %-5s - %-8s %i/%i \n",nomesAlunos[aux],matricula[aux].idCurso,dadosSit[aux],dadosSitCurso[aux],matricula[aux].mes,matricula[aux].ano);
+			cont++;
+			
 		}
 		if(cont==0)
 		{
@@ -402,6 +787,9 @@ int qtdeMatriculas;
 		gotoxy(20,12);
 		fprintf(stdout,"Nao foi possivel carregar dados do arquivo ");
 	}
+	free(dadosSit);
+	free(dadosSitCurso);
+	free(nomesAlunos);
 	getch();
 	system("cls");
 }
@@ -410,31 +798,113 @@ int qtdeMatriculas;
 // Retorno: nenhum
 void opcaoRegular()
 {
-FILE *arqBin;
-Matriculas *matricula;
-int cont=0, nroAluno=0;
-int aux,linha;
-int qtdeMatriculas;
+	FILE *arqBin;
+	Matriculas *matricula;
+	Matriculas matriculaAux;
+	char **dadosSit=NULL,**dadosSitAux;
+	char **dadosSitCurso=NULL,**dadosSitCursoAux;
+	FILE *arqMatricula;
+	char **nomesAlunos=NULL;
+	char **nomesAlunosAux;	
+	Aluno alunos;
+	FILE *arqAlunos;	
+	int cont=0, nroAluno=0;
+	int cont2=0;
+	int cont3=0;
+	int cont4=0;
+	int aux,linha;
+	int qtdeMatriculas=0;
 	system("cls");
-	if((matricula = obtemDadosArquivoMatriculas(&qtdeMatriculas))!=NULL)
+	if((matricula = obtemDadosSituacao(&qtdeMatriculas,'R'))!=NULL)
 	{
 		linha=11;
-		for(aux=0;aux<qtdeMatriculas;aux++)
-		{
-			qsort(matricula,qtdeMatriculas,sizeof(Matriculas),comparaNomesMatricula);
-			if(stricmp(matricula[aux].situacaoCurso,"REGULAR")==0)
-			{    
-			//	qsort(matricula,qtdeMatriculas,sizeof(Matriculas),comparaNomesMatricula);
-			//system("cls");
-				desenhaMoldura(10,10,20,90,AZUL,BRANCO);
-	        	
-	        	gotoxy(11,9);
-				fprintf(stdout,"%-18s %-6s %-5s %5s %s","NOME","ID CURSO","SITUACAO ALUNO ","SITUACAO CURSO","DATA");
-				gotoxy(11,linha);
-				linha++;
-            	printf("%-18.18s - %-6i - %-5s - %-8s %i/%i \n",matricula[aux].nomeMatriculado,matricula[aux].idCurso,matricula[aux].situacaoAluno,matricula[aux].situacaoCurso,matricula[aux].mes,matricula[aux].ano);
-				cont++;
-			}
+
+		desenhaMoldura(10,10,20,90,AZUL,BRANCO);
+	    for(aux=0;aux<qtdeMatriculas;aux++){
+	    	
+			nomesAlunosAux=(char**) realloc(nomesAlunos,sizeof(char*)*(cont4+1));
+				if(nomesAlunosAux!=NULL)
+				{
+					nomesAlunos=nomesAlunosAux;
+					nomesAlunos[cont4]=(char*)malloc(sizeof(char)*(MAX_NOME+1));
+					if(nomesAlunos[cont4]!=NULL)
+					{
+						if((arqAlunos = abreArquivo("dadosAlunos.txt","rb"))!=NULL)          
+						{
+																									
+							while(!feof(arqAlunos))
+							{
+								if(fread(&alunos,sizeof(Aluno),1,arqAlunos)==1)
+								{
+									//printf("%i %i ",matricula.idAluno,alunos.matricula);
+									
+									if(matricula[aux].idAluno==alunos.matricula)
+									{
+										strcpy(nomesAlunos[cont4],alunos.nomeAluno);
+										//printf("%s ",nomesAlunos[contador]);
+										cont4++;
+									}
+									//printf("%s ",nomesAlunos[contador]);
+								}
+							}
+							fclose(arqAlunos);
+						}
+						
+					}
+				}
+				dadosSitAux=(char**) realloc(dadosSit,sizeof(char*)*(cont2+1));
+				if(dadosSitAux!=NULL)
+				{
+					dadosSit=dadosSitAux;
+					dadosSit[cont2]=(char*)malloc(sizeof(char)*(TAM_SITUACAO+1));
+					if(dadosSit[cont2]!=NULL)
+					{
+						//printf("%c ",matricula.situacaoAluno);
+						if(matricula[aux].situacaoAluno=='C')
+						{
+							strcpy(dadosSit[cont2],"CURSANDO");
+						}else{
+							strcpy(dadosSit[cont2],"CONCLUIDO");
+						
+						}
+						//printf("%s ",dadosSit[cont2]);
+						cont2++;
+					}
+				}
+				//printf("%s %c \n",dadosSit[cont2],matricula.situacaoAluno);
+				dadosSitCursoAux=(char**) realloc(dadosSitCurso,sizeof(char*)*(cont3+1));
+				if(dadosSitCursoAux!=NULL)
+				{
+					dadosSitCurso=dadosSitCursoAux;
+					dadosSitCurso[cont3]=(char*) malloc(sizeof(char)*(TAM_SITUACAO+1));
+					if(dadosSitCurso[cont3]!=NULL)
+					{
+					
+					
+						if(matricula[aux].situacaoCurso=='R')
+						{
+							strcpy(dadosSitCurso[cont3],"REGULAR");
+						}else
+						{
+							if(matricula[aux].situacaoCurso=='P')
+							{
+								strcpy(dadosSitCurso[cont3],"PENDENTE");
+							}else
+							{
+								strcpy(dadosSitCurso[cont3],"PAGO");
+							}
+						}
+						cont3++;
+					}
+				}
+				
+	       	gotoxy(11,9);
+			fprintf(stdout,"%-18s %-6s %-5s %5s %s","NOME","ID CURSO","SITUACAO ALUNO ","SITUACAO CURSO","DATA");
+			gotoxy(11,linha);
+			linha++;
+           	printf("%-18.18s - %-6i - %-5s - %-8s %i/%i \n",nomesAlunos[aux],matricula[aux].idCurso,dadosSit[aux],dadosSitCurso[aux],matricula[aux].mes,matricula[aux].ano);
+			cont++;
+			
 		}
 		if(cont==0)
 		{
@@ -449,8 +919,43 @@ int qtdeMatriculas;
 		gotoxy(20,12);
 		fprintf(stdout,"Nao foi possivel carregar dados do arquivo ");
 	}
+	free(dadosSit);
+	free(dadosSitCurso);
+	free(nomesAlunos);
 	getch();
 	system("cls");
+}
+//Objetivo: Obtem os dados necessarios a partir de uma situacao
+//Parametros: referencia a quantidade, e opcao desejada
+//Retorno: endereço da estruct com os dados.
+Matriculas *obtemDadosSituacao(int *qtde, char opcao)
+{
+	FILE *arq=NULL;
+	Matriculas *matricula=NULL,*matriculaAux=NULL;
+	
+	if((arq=abreArquivo("dadosMatriculas.txt","rb"))!=NULL)
+	{
+		while(!feof(arq))
+		{
+			matricula=(Matriculas*)realloc(matriculaAux,sizeof(Matriculas)*((*qtde)+1));
+			if(matricula!=NULL)
+			{
+				matriculaAux=matricula;
+				if(fread(&matriculaAux[*qtde],sizeof(Matriculas),1,arq)==1)
+				{
+					if(matriculaAux[*qtde].situacaoCurso==opcao)
+					{
+						
+						(*qtde)++;
+					}
+				}
+			}else{
+				printf("Erro ao alocar memoria \n");
+			}
+		}
+		fclose(arq);
+	}
+	return matriculaAux;
 }
 //Objetivo: Apresentar os dados presentes em Todos os arquivos.
 //Parametros:
@@ -459,8 +964,23 @@ void relatorio1(void)
 {
 	Cursos *curso;
 	Aluno *alunos;
+	Cursos cursoAux;
+	Aluno alunosAux;
+	FILE *arqAlunos;
+	FILE *arqCursos;
+	FILE *arqMatricula;
+	char **nomeAluno=NULL;
+	char **nomeCurso=NULL;
+	char **nomeAlunoAux;
+	char **nomeCursoAux;
+	char **dadosSit=NULL,**dadosSitAux;
+	char **dadosSitCurso=NULL,**dadosSitCursoAux;
+	static char cpfFormatado[15];
 	Matriculas *matricula;
+	Matriculas matriculaAux;
 	int cont,linha;
+	int cont2=0;
+	int cont3=0;
 	int qtdeAlunos,qtdeCursos,qtdeMatriculas;
 	gotoxy(4,2);
 	fprintf(stdout,"DADOS DE ALUNOS ");
@@ -470,11 +990,15 @@ void relatorio1(void)
 	if((alunos = obtemDadosArquivoAluno(&qtdeAlunos))!=NULL )
 	{
 		linha=5;
+		
+		qsort(alunos,qtdeAlunos,sizeof(Aluno),comparaNomeAlunos);
 		for(cont=0;cont<qtdeAlunos;cont++)
 		{
-			qsort(alunos,qtdeAlunos,sizeof(Aluno),comparaNomeAlunos);
+			sprintf(cpfFormatado,"%3.3s.%3.3s.%3.3s-%2.2s",
+       		alunos[cont].CPF,alunos[cont].CPF+3,alunos[cont].CPF+6,alunos[cont].CPF+9);
+			strcpy(alunos[cont].CPF,cpfFormatado);
 			gotoxy(4,linha);
-			fprintf(stdout,"%5i - %-30.30s - %-5i - %-5c %-12.12s\n",alunos[cont].matricula,alunos[cont].nomeAluno,alunos[cont].idade,alunos[cont].sexo,alunos[cont].CPF);
+			fprintf(stdout,"%5i - %-30.30s - %-5i - %-5c %-15.15s\n",alunos[cont].matricula,alunos[cont].nomeAluno,alunos[cont].idade,alunos[cont].sexo,alunos[cont].CPF);
 			linha++;
 		}	
 		free(alunos);
@@ -488,10 +1012,11 @@ void relatorio1(void)
 	desenhaMoldura(4,3,25,79,AZUL,BRANCO);
 	if((curso = obtemDadosArquivoCursos(&qtdeCursos))!=NULL )
 	{
+		qsort(curso,qtdeCursos,sizeof(Cursos),comparaNomeCursos);
 		linha=5;
 		for(cont=0;cont<qtdeCursos;cont++)
 		{
-			qsort(curso,qtdeCursos,sizeof(Cursos),comparaNomeCursos);
+			//qsort(curso,qtdeCursos,sizeof(Cursos),comparaNomeCursos);
 			gotoxy(4,linha);
 			fprintf(stdout,"%5i - %-30.30s - %-5i - %-5.2f \n",curso[cont].codCurso,curso[cont].nomeCurso,curso[cont].horarios,curso[cont].mensalidade);
 			linha++;
@@ -500,6 +1025,145 @@ void relatorio1(void)
 	}
 	getch();
 	limpaJanela(2,2,25,79,AZUL);
+
+	if((arqMatricula=abreArquivo("dadosMatriculas.txt","rb"))!=NULL)
+	{
+		while(!feof(arqMatricula))
+		{
+			if(fread(&matriculaAux,sizeof(Matriculas),1,arqMatricula)==1)
+			{
+				nomeAlunoAux=(char**)realloc(nomeAluno,sizeof(char*)*(cont2+1));
+				if(nomeAlunoAux!=NULL)
+				{
+					nomeAluno=nomeAlunoAux;
+					nomeAluno[cont2]=(char*)malloc(sizeof(char)*(MAX_NOME+1));
+					if(nomeAluno[cont2]!=NULL)
+					{
+						if((arqAlunos=abreArquivo("dadosAlunos.txt","rb"))!=NULL)
+						{
+							while(!feof(arqAlunos))
+							{
+								if(fread(&alunosAux,sizeof(Aluno),1,arqAlunos)==1)
+								{
+									if(matriculaAux.idAluno==alunosAux.matricula)
+									{
+										strcpy(nomeAluno[cont2],alunosAux.nomeAluno);
+										//printf("%s",nomeAluno[cont2]);
+										cont2++;
+										//printf("%i",cont2);
+									}
+	
+								}
+							}
+							fclose(arqAlunos);
+						}
+					}
+				}
+			}
+		}
+		fclose(arqMatricula);
+			
+	}
+	if((arqMatricula=abreArquivo("dadosMatriculas.txt","rb"))!=NULL)
+	{
+		while(!feof(arqMatricula))
+		{
+			if(fread(&matriculaAux,sizeof(Matriculas),1,arqMatricula)==1)
+			{
+				nomeCursoAux=(char**)realloc(nomeCurso,sizeof(char*)*(cont3+1));
+				if(nomeCursoAux!=NULL)
+				{
+					nomeCurso=nomeCursoAux;
+					nomeCurso[cont3]=(char*)malloc(sizeof(char)*(MAX_NOME+1));
+					if(nomeCurso[cont3]!=NULL)
+					{
+			
+						if((arqCursos=abreArquivo("dadosCursos.txt","rb"))!=NULL)
+						{
+							while(!feof(arqCursos))
+							{
+								if(fread(&cursoAux,sizeof(Cursos),1,arqCursos)==1)
+								{
+									if(matriculaAux.idCurso==cursoAux.codCurso)
+									{
+										strcpy(nomeCurso[cont3],cursoAux.nomeCurso);
+										//printf("%s",nomeCurso[cont3]);
+										
+										//printf("%i",cont3);
+										cont3++;
+									}
+								}
+							}
+							fclose(arqCursos);
+						}
+					}
+				}
+				
+			}	
+		}
+		fclose(arqMatricula);
+	}
+	arqMatricula = abreArquivo("dadosMatriculas.txt","rb");
+	if(arqMatricula!=NULL)
+	{
+		cont2=0;
+		cont3=0;
+		while(!feof(arqMatricula))
+		{
+			if(fread(&matriculaAux,sizeof(Matriculas),1,arqMatricula)==1)
+			{
+					dadosSitAux=(char**) realloc(dadosSit,sizeof(char*)*(cont2+1));
+					if(dadosSitAux!=NULL)
+					{
+						dadosSit=dadosSitAux;
+						dadosSit[cont2]=(char*)malloc(sizeof(char)*(TAM_SITUACAO+1));
+						if(dadosSit[cont2]!=NULL)
+						{
+							//printf("%c ",matricula.situacaoAluno);
+							if(matriculaAux.situacaoAluno=='C')
+							{
+								strcpy(dadosSit[cont2],"CURSANDO");
+							}else{
+								strcpy(dadosSit[cont2],"CONCLUIDO");
+							
+							}
+							//printf("%s ",dadosSit[cont2]);
+							cont2++;
+						}
+					}
+					//printf("%s %c \n",dadosSit[cont2],matricula.situacaoAluno);
+					dadosSitCursoAux=(char**) realloc(dadosSitCurso,sizeof(char*)*(cont2+1));
+					if(dadosSitCursoAux!=NULL)
+					{
+						dadosSitCurso=dadosSitCursoAux;
+						dadosSitCurso[cont3]=(char*) malloc(sizeof(char)*(TAM_SITUACAO+1));
+						if(dadosSitCurso[cont3]!=NULL)
+						{
+						
+						
+							if(matriculaAux.situacaoCurso=='R')
+							{
+								strcpy(dadosSitCurso[cont3],"REGULAR");
+							}else
+							{
+								if(matriculaAux.situacaoCurso=='P')
+								{
+									strcpy(dadosSitCurso[cont3],"PENDENTE");
+								}else
+								{
+									strcpy(dadosSitCurso[cont3],"PAGO");
+								}
+							}
+							cont3++;
+						}
+					}
+				
+					
+			}
+		}
+		fclose(arqMatricula);
+		
+	}
 	gotoxy(4,2);
 	fprintf(stdout,"DADOS DE MATRICULAS");
 	gotoxy(4,3);
@@ -507,17 +1171,20 @@ void relatorio1(void)
 	desenhaMoldura(4,3,25,110,AZUL,BRANCO);
 	if((matricula=obtemDadosArquivoMatriculas(&qtdeMatriculas))!=NULL)
 	{
+		
 		linha=5;
 		for(cont=0;cont<qtdeMatriculas;cont++)
 		{
 			gotoxy(4,linha);
-			qsort(matricula,qtdeMatriculas,sizeof(Matriculas),comparaNomesMatricula);
-			fprintf(stdout,"%-9i%-25.25s %-18.18s %-10i %-15s %-15s  %i/%i \n",matricula[cont].idAluno,matricula[cont].nomeMatriculado,matricula[cont].nomeCursoMatriculado,matricula[cont].idCurso,matricula[cont].situacaoAluno,matricula[cont].situacaoCurso,matricula[cont].mes,matricula[cont].ano);
+			//qsort(matricula,qtdeMatriculas,sizeof(Matriculas),comparaNomesMatricula);
+			fprintf(stdout,"%-9i%-25.25s %-18.18s %-10i %-15s %-15s  %i/%i \n",matricula[cont].idAluno,nomeAluno[cont],nomeCurso[cont],matricula[cont].idCurso,dadosSit[cont],dadosSitCurso[cont],matricula[cont].mes,matricula[cont].ano);
 			linha++;
 		}
-		free(matricula);
+		
 	}
-
+	free(nomeCurso);
+	free(nomeAluno);
+	free(matricula);
 	getch();
 	system("cls");	
 }
@@ -529,81 +1196,87 @@ void relatorio4(void)
 	int diaDesejado,mesDesejado,anoDesejado;
 	int diaDesejado2,mesDesejado2,anoDesejado2;
 	Aluno *alunos;
-	int qtdeAlunos,cont,linha;
+	int qtdeAlunos=0,cont,linha;
 	int verificador,aux=0;
-	if((alunos = obtemDadosArquivoAluno(&qtdeAlunos))!=NULL)
+	int dataInicial,dataFinal;
+	static char cpfFormatado[15];
+	
+	desenhaMoldura(10,10,20,50,AZUL,BRANCO);
+	gotoxy(11,11);
+	fprintf(stdout,"De....");
+	diaDesejado = leInt("DIA = ",1,31,11,12);
+	gotoxy(11,12);
+	mesDesejado = leInt("MES = ",1,12,11,13);
+	gotoxy(11,13);
+	anoDesejado = leInt("ANO = ",1950,2050,11,14);
+	verificador=verificaData(diaDesejado,mesDesejado,anoDesejado);
+	if(verificador==1)
 	{
-		desenhaMoldura(10,10,20,50,AZUL,BRANCO);
-		gotoxy(11,11);
-		fprintf(stdout,"De....");
-		diaDesejado = leInt("DIA = ",1,31,11,12);
-		gotoxy(11,12);
-		mesDesejado = leInt("MES = ",1,12,11,13);
-		gotoxy(11,13);
-		anoDesejado = leInt("ANO = ",1950,2050,11,14);
-		verificador=verificaData(diaDesejado,mesDesejado,anoDesejado);
-		if(verificador==1)
-		{
-			gotoxy(11,15);
-			apresentaMsgErro("Data Invalida, verifique corretamente ","");
-			return;
-		}
-		limpaJanela(10,10,20,50,AZUL);
-		desenhaMoldura(10,10,20,70,AZUL,BRANCO);
-		gotoxy(11,11);
-		fprintf(stdout,"Ate....");
-		diaDesejado2 = leInt("DIA = ",1,31,11,12);
-		gotoxy(11,12);
-		mesDesejado2 = leInt("MES = ",1,12,11,13);
-		gotoxy(11,13);
-		anoDesejado2 = leInt("ANO = ",1950,2050,11,14);
-		gotoxy(11,14);
-		if((diaDesejado>diaDesejado2) && (mesDesejado>=mesDesejado2) && (anoDesejado>=anoDesejado2) || (diaDesejado<diaDesejado2) && (mesDesejado>=mesDesejado2) && (anoDesejado>=anoDesejado2) 
-		|| (diaDesejado>diaDesejado2) && (mesDesejado<=mesDesejado2) && (anoDesejado>=anoDesejado2))
-		{
-			gotoxy(11,15);
-			fprintf(stdout,"A DATA INICIAL DEVE SER MENOR QUE A INICIAL \n");
-			getch();
-			return;
-		}
-		verificador=verificaData(diaDesejado2,mesDesejado2,anoDesejado2);
-		if(verificador==1)
-		{
-			gotoxy(11,15);
-			apresentaMsgErro("Data Invalida, verifique corretamente ","");
-			return;
-		}
-		linha=4;
+		gotoxy(11,15);
+		apresentaMsgErro("Data Invalida, verifique corretamente ","");
+		return;
+	}
+	limpaJanela(10,10,20,50,AZUL);
+	desenhaMoldura(10,10,20,70,AZUL,BRANCO);
+	gotoxy(11,11);
+	fprintf(stdout,"Ate....");
+	diaDesejado2 = leInt("DIA = ",1,31,11,12);
+	gotoxy(11,12);
+	mesDesejado2 = leInt("MES = ",1,12,11,13);
+	gotoxy(11,13);
+	anoDesejado2 = leInt("ANO = ",1950,2050,11,14);
+	gotoxy(11,14);
+	verificador=verificaData(diaDesejado2,mesDesejado2,anoDesejado2);
+	if(verificador==1)
+	{
+		gotoxy(11,15);
+		apresentaMsgErro("Data Invalida, verifique corretamente ","");
+		return;
+	}
+	linha=4;
+	system("cls");
+	gotoxy(3,1);
+	fprintf(stdout,"PERIODO = %i/%i/%i ate %i/%i/%i ",diaDesejado,mesDesejado,anoDesejado,diaDesejado2,mesDesejado2,anoDesejado2);
+	gotoxy(2,2);
+	dataInicial=transformaData(diaDesejado,mesDesejado,anoDesejado);
+	dataFinal=transformaData(diaDesejado2,mesDesejado2,anoDesejado2);
+	if(dataInicial > dataFinal)
+	{
+		gotoxy(3,3);
+		fprintf(stdout,"Data INICIAL Maior que a FINAL !!! ");
+		getch();
 		system("cls");
-		gotoxy(1,1);
-		fprintf(stdout,"PERIODO = %i/%i/%i ate %i/%i/%i ",diaDesejado,mesDesejado,anoDesejado,diaDesejado2,mesDesejado2,anoDesejado2);
-		gotoxy(2,2);
-		fprintf(stdout,"%-29s%-5s    %5s%5s%23s","NOME","IDADE","SEXO","CPF","DATA INGRESSO");
+		return;
+		
+	}
+	if((alunos = obtemAlunosPeriodo(&qtdeAlunos,dataInicial,dataFinal))!=NULL)
+	{
+	
+		fprintf(stdout,"%-30.30s%-5.5s %-16.16s%-15.15s%s","NOME","IDADE","SEXO","CPF","DATA INGRESSO");
 		desenhaMoldura(3,1,25,90,AZUL,BRANCO);
+		qsort(alunos,qtdeAlunos,sizeof(Aluno),comparaNomeAlunos);
 		for(cont=0;cont<qtdeAlunos;cont++)
 		{
-			qsort(alunos,qtdeAlunos,sizeof(Aluno),comparaNomeAlunos);
-			if((diaDesejado<=alunos[cont].dataDia && diaDesejado2>=alunos[cont].dataDia) && (mesDesejado<=alunos[cont].dataMes && mesDesejado2>=alunos[cont].dataMes) 
-			&& (anoDesejado<=alunos[cont].dataAno && anoDesejado2>=alunos[cont].dataAno))
+			//qsort(alunos,qtdeAlunos,sizeof(Aluno),comparaNomeAlunos);
+				sprintf(cpfFormatado,"%3.3s.%3.3s.%3.3s-%2.2s",
+           		alunos[cont].CPF,alunos[cont].CPF+3,alunos[cont].CPF+6,alunos[cont].CPF+9);
+           		strcpy(alunos[cont].CPF,cpfFormatado);	
+			if(alunos[cont].sexo=='F')
 			{
-				
-				if(alunos[cont].sexo=='F')
-				{
-					gotoxy(2,linha);
-					linha++;
-					fprintf(stdout,"%-30.30s - %-4i - FEMININO %-12.12s %i/%i/%i \n",alunos[cont].nomeAluno,alunos[cont].idade,
-					alunos[cont].CPF,alunos[cont].dataDia,alunos[cont].dataMes,alunos[cont].dataAno);	
-					aux++;
-				}else{
-					gotoxy(2,linha);
-					linha++;
-					fprintf(stdout,"%-30.30s - %-4i - MASCULINO %-12.12s %i/%i/%i \n",alunos[cont].nomeAluno,alunos[cont].idade,
-					alunos[cont].CPF,alunos[cont].dataDia,alunos[cont].dataMes,alunos[cont].dataAno);
-					aux++;
-				}
-				
-				
+				gotoxy(2,linha);
+				linha++;
+				fprintf(stdout,"%-30.30s-%-5i-%-16.16s%-15.15s %i/%i/%i \n",alunos[cont].nomeAluno,alunos[cont].idade,"FEMININO",
+				alunos[cont].CPF,alunos[cont].dataDia,alunos[cont].dataMes,alunos[cont].dataAno);	
+				aux++;
+			}else{
+				gotoxy(2,linha);
+				linha++;
+				fprintf(stdout,"%-30.30s-%-5i-%-16.16s%-15.15s %i/%i/%i \n",alunos[cont].nomeAluno,alunos[cont].idade,"MASCULINO",
+				alunos[cont].CPF,alunos[cont].dataDia,alunos[cont].dataMes,alunos[cont].dataAno);
+				aux++;
 			}
+				
+			
 		}
 		if(aux==0)
 		{
@@ -620,6 +1293,56 @@ void relatorio4(void)
 	}
 	getch();
 	system("cls");
+	
+	
+	
+}
+//Objetivo: Transformar uma data para um numero Unico
+//Parametros: dia , mes e ano
+//Retorno: numero unico da data
+int transformaData(int dia,int mes,int ano)
+{
+	int numero=0;
+	int numeroAux=0;
+	
+	numeroAux = (ano*1000)+(mes*100)+dia;	
+	numero = numeroAux;
+
+		
+}
+//Objetivo: Trazer para a memoria os alunos matriculados em um periodo.
+//Parametros: dia, mes e ano iniciais, e dia, mes e ano finais , referencia a quantidade de alunos.
+//Retorno: endereco de memoria da estruct com os dados
+Aluno *obtemAlunosPeriodo(int *qtdeAlunos,int dataInicial,int dataFinal)
+{
+	FILE *arqAlunos=NULL;
+	Aluno *alunos=NULL,*alunosAux=NULL;
+	int dataAlunos=0;
+	
+
+	
+	if((arqAlunos = abreArquivo("dadosAlunos.txt","rb"))!=NULL)
+	{
+		while(!feof(arqAlunos))
+		{
+			alunos=(Aluno*) realloc(alunosAux,sizeof(Aluno)*((*qtdeAlunos)+1));
+			if(alunos!=NULL)
+			{
+				alunosAux=alunos;
+				if(fread(&alunosAux[*qtdeAlunos],sizeof(Aluno),1,arqAlunos)==1)
+				{
+					dataAlunos=transformaData(alunos[*qtdeAlunos].dataDia,alunos[*qtdeAlunos].dataMes,alunos[*qtdeAlunos].dataAno);
+					if(dataInicial<=dataAlunos && dataAlunos<=dataFinal)
+					{
+						(*qtdeAlunos)++;
+					}
+				}
+			}
+		}
+	}
+	return alunosAux;
+	
+	
 	
 	
 	
@@ -673,4 +1396,18 @@ int verificaData(int dia,int mes,int ano)
 	
 	return flag;
 	
+}
+//Objetivo: compara os dados para serem ordenados pela qsort
+//Parametros: endereços dos elementos que serao ordenados
+// retorno : =0 --> dados iguais
+//           >0 --> dados desordenados
+//           <0 --> dados ordenados
+int comparaMatriculas(const void *p1,const void *p2)
+{
+	Matriculas *matricula1,*matricula2;
+	
+	matricula1=(Matriculas*)p1;
+	matricula2=(Matriculas*)p2;
+	
+	return (*matricula1).idAluno-(*matricula2).idAluno;
 }

@@ -18,3 +18,9 @@ void opcaoPago();
 void opcaoRegular();
 int verificaBissexto(int ano,int mes,int dia);
 int verificaData(int dia,int mes,int ano);
+Matriculas *obtemCursosFinalizados(int *qtde, int escolheCurso, int escolheAno, char escolheSituacao);
+Cursos *obtemDadosPorNome(int *qtde,char *nomeDesejado);
+Aluno *obtemAlunosPeriodo(int *qtdeAlunos,int dataInicial,int dataFinal);
+int transformaData(int dia,int mes,int ano);
+int comparaMatriculas(const void *p1,const void *p2);
+

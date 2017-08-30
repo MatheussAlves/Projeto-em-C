@@ -6,7 +6,7 @@
 #define MAX_MATRICULA 9999
 #define NOME_CURSO 50
 #define MAX_COD 9999
-#define MIN_COD	100
+#define MIN_COD	1000
 #define MAX_MENSALIDADE 3500
 #define MIN_MENSALIDADE 100
 #define MAX_CARGA_HORARIA 220
@@ -39,10 +39,9 @@ typedef struct Matriculas
 {
 	int idAluno;
 	int idCurso;
-	char situacaoAluno[TAM_SITUACAO];//C - cursando F - concluido
-	char situacaoCurso[TAM_SITUACAO]; // R - regular - P pendente - F pago
+	char situacaoAluno;//C - cursando F - concluido
+	char situacaoCurso; // R - regular - P pendente - F pago
 	int mes,ano;
-	char nomeMatriculado[MAX_NOME];
-	char nomeCursoMatriculado[MAX_NOME];
+	
 }Matriculas;
 #endif

@@ -30,3 +30,7 @@ int obtemCadastroMatricula(int cadastro);
 void ordenaAlunos(int qtde, Aluno *alunos);
 int comparaNomeCursos(const void * p1, const void *p2);
 int comparaNomesMatricula(const void * p1, const void *p2);
+void recuperaDescricao(char **nomesAlunos,char **nomesCurso);
+int obtemNomeMatricula(char *texto);
+Matriculas *obtemDadosSituacao(int *qtde, char opcao);
+int obtemAlunoMatriculado(int matricula);

@@ -251,22 +251,41 @@ int validaCPF (char *cpf)
                   break;
             	}
          } 
-        /*if((arq=fopen("dadosAlunos.txt","rb"))!=NULL)
-		{
-		while(!feof(arq))
-		{
-			if(fread(&alunos,sizeof(Aluno),1,arq)==1)
-			{
-				cont++;
-				if(stricmp(cpf,alunos.CPF)==0){
-					retorno=0;
-					break;
-				}
-			}
-		}
-		fclose(arq);
-	}
-         */
+    	 if(retorno ==0)
+            return retorno;
+          
+         // transforma os caracteres do cpf em números     
+         for(cont=0;cont<strlen(cpf);cont++)
+         {
+                dig[cont] = cpf[cont] - '0';
+         }
+         
+         // obtem o primeiro digito verificador
+         aux2=10;
+         for(cont=0;cont<9;cont++,aux2--)
+         {
+            soma+= dig[cont] * aux2;
+         }
+         digVeri[0]=soma % 11;
+         digVeri[0]= digVeri[0]<2 ? 0 : 11-digVeri[0];
+         
+         // obtem o segundo digito verificador
+         soma=0;
+         aux2=11;
+         for(cont=0;cont<10;cont++,aux2--)
+         {
+               if(cont==9)
+                  soma+= digVeri[0] * aux2;
+               else
+                  soma+= dig[cont] * aux2;
+         }
+         digVeri[1]=soma % 11;
+         digVeri[1]= digVeri[1]<2 ? 0 : 11-digVeri[1];
+         if(digVeri[0]!=dig[9] || digVeri[1]!=dig[10])
+         {
+               retorno =0;               
+         }
+         return retorno;
          
          
          

@@ -232,28 +232,204 @@ int apresentaCursosV(void)
 		
 		return codigoSelecionado;
 }
+//
+//
+//
+void apresentaMatriculas(void)
+{
+	FILE *arq;
+	Matriculas matricula;
+	
+	arq = fopen("dadosMatriculas.txt","rb");
+	if(arq!=NULL)
+	{
+		while(!feof(arq))
+		{
+			if(fread(&matricula,sizeof(Matriculas),1,arq)==1)
+			{
+				printf("%i %i %c %c %i \n ",matricula.idAluno,matricula.idCurso,matricula.situacaoAluno,matricula.situacaoCurso,matricula.mes);
+				getch();
+			}
+		}
+		fclose(arq);
+	}
+}
 //Objetivo: Apresentar as matriculas cadastradas
 //Parametros: nenhum
 //Retorno: nenhum
 int apresentaMatriculasV(void)
 {
 	FILE *arqMatricula;
+	FILE *arqCursos;
+	FILE *arqAlunos;
 	Matriculas matricula;
-	Aluno *alunos;
+	Aluno alunos;
+	Cursos curso;
+	char **nomesAlunosAux;
+	char **nomesCursosAux;
 	char **dados=NULL,**dadosAux, aux[7];
+	char **dadosSit=NULL,**dadosSitAux;
+	char **dadosSitCurso=NULL,**dadosSitCursoAux;
+	char **nomesCurso=NULL;
+	char **nomesAlunos=NULL;
 	int linha,cont=0,i,qtdeItens,itemSelecionado=0,codigoSelecionado=0,qtdeAlocada=0,existeErro=0;
 	int qtdeAlunos;
+	int cont2=0;
+	int cont3=0;
+	int contadorAux=0;
+	int contador=0;
 	char *sitAluno,*sitCurso;
 	limpaJanela(1,1,25,80,AZUL);
-	arqMatricula = abreArquivo("dadosMatriculas.txt","rb");
-	if(arqMatricula != NULL)
-	{
-		gotoxy(5,3);
-		fprintf(stdout,"%-9.9s %-25.25s%-18.18s %-10.10s %-15.15s %-15.15s %s","MATRICULA","NOME ALUNO ","NOME CURSO","ID CURSO","SITUACAO ALUNO ","SITUACAO CURSO","DATA");
+	if((arqMatricula = abreArquivo("dadosMatriculas.txt","rb"))!=NULL){
 		while(!feof(arqMatricula))
 		{
 			if(fread(&matricula,sizeof(Matriculas),1,arqMatricula)==1)
 			{
+				nomesAlunosAux=(char**) realloc(nomesAlunos,sizeof(char*)*(contador+1));
+				if(nomesAlunosAux!=NULL)
+				{
+					nomesAlunos=nomesAlunosAux;
+					nomesAlunos[contador]=(char*)malloc(sizeof(char)*(MAX_NOME+1));
+					if(nomesAlunos[contador]!=NULL)
+					{
+						if((arqAlunos = abreArquivo("dadosAlunos.txt","rb"))!=NULL)          
+						{
+																									
+							while(!feof(arqAlunos))
+							{
+								if(fread(&alunos,sizeof(Aluno),1,arqAlunos)==1)
+								{
+									//printf("%i %i ",matricula.idAluno,alunos.matricula);
+									
+									if(matricula.idAluno==alunos.matricula)
+									{
+										strcpy(nomesAlunos[contador],alunos.nomeAluno);
+										//printf("%s ",nomesAlunos[contador]);
+										contador++;
+									}
+									//printf("%s ",nomesAlunos[contador]);
+								}
+							}
+							fclose(arqAlunos);
+						}
+						
+					}
+				}
+				            	
+			}
+		}
+		fclose(arqMatricula);
+	}
+	if((arqMatricula=abreArquivo("dadosMatriculas.txt","rb"))!=NULL)
+	{
+		while(!feof(arqMatricula))
+		{
+			if(fread(&matricula,sizeof(Matriculas),1,arqMatricula)==1)
+			{
+				nomesCursosAux=(char**) realloc(nomesCurso,sizeof(char*)*(contadorAux+1));
+				if(nomesCursosAux!=NULL)
+				{
+					nomesCurso=nomesCursosAux;
+					nomesCurso[contadorAux]=(char*)malloc(sizeof(char)*(MAX_NOME+1));
+					if(nomesCurso[contadorAux]!=NULL)
+					{
+						if((arqCursos=abreArquivo("dadosCursos.txt","rb"))!=NULL)
+						{
+							while(!feof(arqCursos))
+							{
+								if(fread(&curso,sizeof(Cursos),1,arqCursos)==1)
+								{
+									if(matricula.idCurso==curso.codCurso)
+									{
+										strcpy(nomesCurso[contadorAux],curso.nomeCurso);
+										//printf("%s ",nomesCurso[contadorAux]);
+										contadorAux++;
+									}
+								}
+							}
+							fclose(arqCursos);
+							
+						}
+					}
+				}
+			}
+		}
+		fclose(arqMatricula);
+	}
+	arqMatricula = abreArquivo("dadosMatriculas.txt","rb");
+	if(arqMatricula!=NULL)
+	{
+		while(!feof(arqMatricula))
+		{
+			if(fread(&matricula,sizeof(Matriculas),1,arqMatricula)==1)
+			{
+					dadosSitAux=(char**) realloc(dadosSit,sizeof(char*)*(cont2+1));
+					if(dadosSitAux!=NULL)
+					{
+						dadosSit=dadosSitAux;
+						dadosSit[cont2]=(char*)malloc(sizeof(char)*(TAM_SITUACAO+1));
+						if(dadosSit[cont2]!=NULL)
+						{
+							//printf("%c ",matricula.situacaoAluno);
+							if(matricula.situacaoAluno=='C')
+							{
+								strcpy(dadosSit[cont2],"CURSANDO");
+							}else{
+								strcpy(dadosSit[cont2],"CONCLUIDO");
+							
+							}
+							//printf("%s ",dadosSit[cont2]);
+							cont2++;
+						}
+					}
+					//printf("%s %c \n",dadosSit[cont2],matricula.situacaoAluno);
+					dadosSitCursoAux=(char**) realloc(dadosSitCurso,sizeof(char*)*(cont2+1));
+					if(dadosSitCursoAux!=NULL)
+					{
+						dadosSitCurso=dadosSitCursoAux;
+						dadosSitCurso[cont3]=(char*) malloc(sizeof(char)*(TAM_SITUACAO+1));
+						if(dadosSitCurso[cont3]!=NULL)
+						{
+						
+						
+							if(matricula.situacaoCurso=='R')
+							{
+								strcpy(dadosSitCurso[cont3],"REGULAR");
+							}else
+							{
+								if(matricula.situacaoCurso=='P')
+								{
+									strcpy(dadosSitCurso[cont3],"PENDENTE");
+								}else
+								{
+									strcpy(dadosSitCurso[cont3],"PAGO");
+								}
+							}
+							cont3++;
+						}
+					}
+				
+					
+			}
+		}
+		fclose(arqMatricula);
+		
+	}
+
+	
+	arqMatricula = abreArquivo("dadosMatriculas.txt","rb");
+	if(arqMatricula != NULL)
+	{
+		cont2=0;
+	
+		gotoxy(5,3);
+		fprintf(stdout,"%-9.9s %-25.25s%-18.18s %-10.10s %-15.15s %-15.15s %s","ID CURSO","NOME CURSO","NOME ALUNO","MATRICULA","MATRICULA","SITUACAO CURSO","DATA");
+		while(!feof(arqMatricula))
+		{
+			
+			if(fread(&matricula,sizeof(Matriculas),1,arqMatricula)==1)
+			{
+				//printf("Entrou ! \n");
 				dadosAux = (char**) realloc(dados,sizeof(char*)* (cont+1));
 				if(dadosAux!=NULL)
 				{
@@ -261,8 +437,9 @@ int apresentaMatriculasV(void)
 					dados[cont]=(char*) malloc(sizeof(char)*(110+1));
 					if(dados[cont]!=NULL)
 					{
-						sprintf(dados[cont],"%-9i%-25.25s %-18.18s %-10i %-15s %-15s  %i/%i \n",matricula.idAluno,matricula.nomeMatriculado,matricula.nomeCursoMatriculado,matricula.idCurso,matricula.situacaoAluno,matricula.situacaoCurso,matricula.mes,matricula.ano);
+						sprintf(dados[cont],"%-9i%-25.25s %-18.18s %-10i %-15s %-15s   %i/%i \n",matricula.idCurso,nomesCurso[cont2],nomesAlunos[cont2],matricula.idAluno,dadosSit[cont2],dadosSitCurso[cont2],matricula.mes,matricula.ano);
 						cont++;
+						cont2++;
 					}
 				}
 			}
@@ -271,7 +448,7 @@ int apresentaMatriculasV(void)
 		{
 			for(i=0;i<cont;i+=10)
 			{
-				qtdeItens = cont -i > 15 ? 15: cont-i;
+				qtdeItens = cont -i > 25 ? 25: cont-i;
 				itemSelecionado = menuVertical(qtdeItens,&dados[i],BRANCO,AZULCLARO,5,5,1,
                 1,AZUL,BRANCO);
                 if(itemSelecionado!=0)
@@ -294,6 +471,7 @@ int apresentaMatriculasV(void)
 				free(dados[i]);
 			}
 			free(dados);
+		
 		}
 		if(fclose(arqMatricula)!=0)
 			apresentaMsgErro("Erro ao fechar o arquivo ","apresentaMatriculas");
@@ -304,7 +482,86 @@ int apresentaMatriculasV(void)
 			fprintf(stdout,"Nao existem matriculas cadastradas ! ");
 			getch();
 		}
+		free(nomesAlunos);
+		free(nomesCurso);
+		free(dadosSit);
+		free(dadosSitCurso);
 		return codigoSelecionado;
+}
+//
+//
+//
+void recuperaDescricao(char **nomesAlunos,char **nomesCurso)
+{
+	FILE *arqMatricula;
+	FILE *arqCursos;
+	FILE *arqAlunos;
+	int cont=0;
+	int aux=0;
+	Matriculas matricula;
+	Aluno alunos;
+	Cursos curso;
+	char **nomesAlunosAux;
+	char **nomesCursosAux;
+	
+	if((arqMatricula = abreArquivo("dadosMatriculas.txt","rb"))!=NULL){
+		while(!feof(arqMatricula))
+		{
+			if(fread(&matricula,sizeof(Matriculas),1,arqMatricula)==0)
+			{
+				nomesAlunosAux=(char**) realloc(nomesAlunos,sizeof(char*)*(cont+1));
+				if(nomesAlunosAux!=NULL)
+				{
+					nomesAlunos=nomesAlunosAux;
+					nomesAlunos[cont]=(char*)malloc(sizeof(char)*MAX_NOME+1);
+					if(nomesAlunos[cont]!=NULL)
+					{
+						if((arqAlunos = abreArquivo("dadosAlunos.txt","rb"))!=NULL)           //<<<<- pega  o numero do aluno e compara com o ID da mattricula
+						{																	//<<<<<- se forem iguais ele copia o nome do aluno., para o ponteiro.			
+							while(!feof(arqAlunos))
+							{
+								if(fread(&alunos,sizeof(Aluno),1,arqAlunos)==1)
+								{
+									if(matricula.idAluno==alunos.matricula)
+									{
+										strcpy(nomesAlunos[cont],alunos.nomeAluno);
+									}
+									cont++;
+								}
+							}
+							fclose(arqAlunos);
+						}
+					}
+				}
+				nomesCursosAux=(char**) realloc(nomesCurso,sizeof(char*)*(aux+1));
+				if(nomesCursosAux!=NULL)
+				{
+					nomesCurso=nomesCursosAux;
+					nomesCurso[aux]=(char*)malloc(sizeof(char)*MAX_NOME+1);
+					if(nomesCurso[aux]!=NULL)
+					{
+						if((arqCursos=abreArquivo("dadosCursos.txt","rb"))!=NULL)
+						{
+							while(!feof(arqCursos))
+							{
+								if(fread(&curso,sizeof(Aluno),1,arqCursos)==1)
+								{
+									if(matricula.idCurso==curso.codCurso)
+									{
+										strcpy(nomesCurso[aux],curso.nomeCurso);
+									}
+									aux++;
+								}
+							}
+							fclose(arqCursos);
+						}
+					}
+				}
+				
+			}
+		}
+		fclose(arqMatricula);
+	}
 }
 // Objetivos:  le os dados dos alunos existentes colocando na memória com alocação dinâmica
 // parâmetros:  endereço de memória para guardar a qtde de alunos recuperada
@@ -426,7 +683,7 @@ int i; //<- CONTADOR
 void excluiAluno()
 {
 	Aluno alunos;
-	int seq,existeErro;
+	int seq,seq2,existeErro;
 	char *msg;
 	
 	alunos.matricula=apresentaAlunosV();
@@ -435,6 +692,14 @@ void excluiAluno()
 		return;
 		
 	seq = obtemMatriculaAluno(alunos.matricula);
+	seq2=obtemAlunoMatriculado(alunos.matricula);
+	if(seq2!=0)
+	{
+		gotoxy(11,12);
+		fprintf(stdout,"ALUNO JA ESTA MATRICULADO, PORTANTO NAO PODE SER EXCLUIDO");
+		getch();
+		return;
+	}
 	if(seq!=0)
 	{
 		if(leDadosAlunoPesquisado(seq,&alunos))
@@ -468,6 +733,33 @@ void excluiAluno()
 	
 	
 }
+//
+//
+//
+int obtemAlunoMatriculado(int cadastro)
+{
+
+FILE *arqBin;
+Matriculas matricula;
+int seq=0, cont=0;
+	if((arqBin=fopen("dadosMatriculas.txt","rb"))!=NULL){
+		while(!feof(arqBin)){
+			if(fread(&matricula,sizeof(Matriculas),1,arqBin)==1){
+				cont++;
+				if(cadastro==matricula.idAluno){
+                    seq = cont;
+					break;
+				}
+			}
+		}
+		fclose(arqBin);
+	}else
+	{
+		printf("Arquivo nao encontrado...");
+	}
+	return seq;
+
+}
 //Objetivos: exclui os dados de um aluno do arquivo
 //parâmetros : nenhum
 //retorno : nenhum
@@ -488,7 +780,7 @@ void excluiCursos(void)
 		if(leDadosCurso(seq,&curso))
 		{
 			gotoxy(11,12);
-			fprintf(stdout,"%i - %s - %i - %i \n",curso.codCurso,curso.nomeCurso,curso.horarios,curso.mensalidade);
+			fprintf(stdout,"%i - %s - %i - %.2f \n",curso.codCurso,curso.nomeCurso,curso.horarios,curso.mensalidade);
 			gotoxy(11,13);
 			if(respostaSN("Confirma ")=='S')
 			{
@@ -556,14 +848,14 @@ Cursos *curso1,*curso2;
 // retorno : =0 --> dados iguais
 //           >0 --> dados desordenados
 //           <0 --> dados ordenados
-int comparaNomesMatricula(const void * p1, const void *p2)
+/*int comparaNomesMatricula(const void * p1, const void *p2)
 {
 Matriculas *matricula1,*matricula2;
 
   matricula1 = (Matriculas*)p1;
   matricula2 = (Matriculas*)p2;
   return stricmp((*matricula1).nomeMatriculado,(*matricula2).nomeMatriculado); 
-}
+}*/
 
 //objetivo: verificar se uma resposta foi S ou N
 //parametros: referencia a string de pergunta.
@@ -816,14 +1108,62 @@ int seq=0, cont=0;
 		while(!feof(arqBin)){
 			if(fread(&matricula,sizeof(Matriculas),1,arqBin)==1){
 				cont++;
-				if(cadastro==matricula.idAluno){
+				if(cadastro==matricula.idCurso){
                     seq = cont;
 					break;
 				}
 			}
 		}
 		fclose(arqBin);
+	}else
+	{
+		printf("Arquivo nao encontrado...");
 	}
+	return seq;
+}
+//Objetivo: Recuperar o codigo do aluno , a partir do seu nome.
+//Parametros: nome.
+//Retorno: 0 se nao exisitr, ou o numero do aluno.
+int obtemNomeMatricula(char *texto)
+{
+	FILE *arqBin;
+	Matriculas matricula;
+	Aluno alunos;
+	int cont=0,aux=0;
+	int seq=0;
+	int idAluno=0;
+	if((arqBin=fopen("dadosAlunos.txt","rb"))!=NULL)
+	{
+		while(!feof(arqBin))
+		{
+			if(fread(&alunos,sizeof(Aluno),1,arqBin)==1)
+			{
+				if(stricmp(texto,alunos.nomeAluno)==1)
+				{
+					printf("%s ",alunos.nomeAluno);
+					idAluno = alunos.matricula;
+					
+				}
+			}	
+		}
+		fclose(arqBin);
+	}
+	if((arqBin=fopen("dadosMatriculas.txt","rb"))!=NULL)
+	{
+		while(!feof(arqBin))
+		{
+			if(fread(&matricula,sizeof(Matriculas),1,arqBin)==1)
+			{
+				aux++;
+				if(idAluno==matricula.idAluno){
+					seq = aux;
+					break;
+				}
+			}
+		}
+		fclose(arqBin);
+	}
+	printf("%i ",seq);
 	return seq;
 }
 // Objetivo: recuperar o numero de um curso pelo codigo
@@ -947,28 +1287,84 @@ int geraCodigoAleatorio(void)
 void pesquisaMatriculas()
 {
 	FILE *arqMatriculas;
-	 Matriculas matriculas;
+	Matriculas matriculas;
+	Aluno alunos;
+	Cursos curso;
+	FILE *arqAlunos; 
+	FILE *arqCursos;
 	int matriculaPesquisada;
 	int flag=0;
 	int contMatriculas;
-	
+	char nomeAluno[MAX_NOME];
+	char nomeCurso[MAX_NOME];
+	char sitAluno[TAM_SITUACAO];
+	char sitCurso[TAM_SITUACAO];
 	desenhaMoldura(8,10,20,120,AZUL,BRANCO);
 	gotoxy(11,11);
-	matriculaPesquisada=leInt("Informe a matricula do aluno que deseja pesquisar : ",MIN_MATRICULA,MAX_MATRICULA,11,11);
+	matriculaPesquisada = leInt("informe a matricula desejada = ",MIN_MATRICULA,MAX_MATRICULA,11,11);
 	if((contMatriculas = obtemCadastroMatricula(matriculaPesquisada))==0)
 	{
 		gotoxy(11,12);
 		fprintf(stdout,"Essa matricula nao foi encontrada \n ");
 		getch();
+		system("cls");
+		return;
 	}
 	else
 	{
 		if(leMatriculaPesquisada(contMatriculas,&matriculas)==1)
 		{
+			if((arqAlunos=abreArquivo("dadosAlunos.txt","rb"))!=NULL)
+			{
+				while(!feof(arqAlunos))
+				{
+					if(fread(&alunos,sizeof(Aluno),1,arqAlunos)==1)
+					{
+						if(matriculas.idAluno==alunos.matricula)
+						{
+							strcpy(nomeAluno,alunos.nomeAluno);
+						}
+					}
+				}
+				fclose(arqAlunos);
+			}
+			if((arqCursos=abreArquivo("dadosCursos.txt","rb"))!=NULL)
+			{
+				while(!feof(arqCursos))
+				{
+					if(fread(&curso,sizeof(Cursos),1,arqCursos)==1)
+					{
+						if(matriculas.idCurso==curso.codCurso)
+						{
+							strcpy(nomeCurso,curso.nomeCurso);
+						}
+					}
+				}
+				fclose(arqCursos);
+			}
+			if(matriculas.situacaoAluno=='C')
+			{
+				strcpy(sitAluno,"CURSANDO");
+			}else
+			{
+				strcpy(sitAluno,"CONCLUIDO");
+			}
+			if(matriculas.situacaoCurso=='F')
+			{
+				strcpy(sitCurso,"PAGO");
+			}else
+			{
+				if(matriculas.situacaoCurso=='P')
+				{
+					strcpy(sitCurso,"PENDENTE");
+				}else{
+					strcpy(sitCurso,"REGULAR");
+				}
+			}
 			gotoxy(11,11);
 			fprintf(stdout,"%-9.9s %-25.25s%-18.18s %-10.10s %-15.15s %-15.15s %s","MATRICULA","NOME ALUNO ","NOME CURSO","ID CURSO","SITUACAO ALUNO ","SITUACAO CURSO","DATA");
 			gotoxy(11,12);
-			fprintf(stdout,"%-9i%-25.25s %-18.18s %-10i %-15s %-15s  %i/%i \n",matriculas.idAluno,matriculas.nomeMatriculado,matriculas.nomeCursoMatriculado,matriculas.idCurso,matriculas.situacaoAluno,matriculas.situacaoCurso,matriculas.mes,matriculas.ano);
+			fprintf(stdout,"%-9i%-25.25s %-18.18s %-10i %-15s %-15s  %i/%i \n",matriculas.idAluno,nomeAluno,nomeCurso,matriculas.idCurso,sitAluno,sitCurso,matriculas.mes,matriculas.ano);
 			gotoxy(11,13);
 			printf("  data de ingresso = %i/%i \n",matriculas.mes,matriculas.ano);
 			gotoxy(11,14);
@@ -1025,16 +1421,16 @@ void alteraMatriculas(void)
 	Matriculas *matriculaRepetida;
 	int qtdeMatriculas;
 	int seq,verificador,cont;
-	char opcao,sitAluno,sitCurso;
-	
-	matricula.idAluno=apresentaMatriculasV();
-	
+	char opcao;
+	char sitAluno[TAM_SITUACAO];
+	char sitCurso[TAM_SITUACAO];
+	matricula.idCurso=apresentaMatriculasV();
 	desenhaMoldura(10,10,18,80,AZUL,BRANCO);
 	if(matricula.idAluno <=0 )
 	{
 		return;
 	}
-	seq = obtemCadastroMatricula(matricula.idAluno);
+	seq = obtemCadastroMatricula(matricula.idCurso);
 	if(seq != 0)
 	{
 		if(leMatriculaPesquisada(seq,&matricula))
@@ -1042,9 +1438,27 @@ void alteraMatriculas(void)
 			arq = abreArquivo("dadosMatriculas.txt","r+b");
 			if(arq!=NULL)
 			{
-				
+				if(matricula.situacaoAluno=='C')
+				{
+					strcpy(sitAluno,"CURSANDO");
+				}else
+				{
+					strcpy(sitAluno,"CONCLUIDO");
+				}
+				if(matricula.situacaoCurso=='F')
+				{
+					strcpy(sitCurso,"PAGO");
+				}else
+				{
+					if(matricula.situacaoCurso=='P')
+					{
+						strcpy(sitCurso,"PENDENTE");
+					}else{
+						strcpy(sitCurso,"REGULAR");
+					}
+				}
 				gotoxy(11,12);
-				fprintf(stdout,"%i - %i - %s -  %s - %i/%i \n",matricula.idAluno,matricula.idCurso,matricula.situacaoAluno,matricula.situacaoCurso,matricula.mes,matricula.ano);
+				fprintf(stdout,"%i - %i - %s -  %s - %i/%i \n",matricula.idAluno,matricula.idCurso,sitAluno,sitCurso,matricula.mes,matricula.ano);
 				gotoxy(11,13);
 				if(respostaSN("Confirma ")=='S')
 				{
@@ -1055,47 +1469,29 @@ void alteraMatriculas(void)
 					gotoxy(11,15);
 					if(opcao=='A')
 					{
-						sitAluno=leValidaCaracter("Situacao do aluno ( C - cursando F - concluido)","CF",15,11);
-						if(sitAluno=='C')
-						{
-							strcpy(matricula.situacaoAluno,"CURSANDO");
-						}else
-						{
-							strcpy(matricula.situacaoAluno,"CONCLUIDO");
-						}
+						matricula.situacaoAluno=leValidaCaracter("Situacao do aluno ( C - cursando F - concluido)","CF",15,11);
+						
+					
 						if((matriculaRepetida = obtemDadosArquivoMatriculas(&qtdeMatriculas))!=NULL)
 						{
 							for(cont=0;cont<qtdeMatriculas;cont++)
 							{
-								if(matricula.idAluno==matriculaRepetida[cont].idAluno && (stricmp(matricula.situacaoAluno,"CURSANDO"))==0)
+								if(matricula.idAluno==matriculaRepetida[cont].idAluno && matriculaRepetida[cont].situacaoAluno=='C' && matricula.situacaoAluno=='C' )
 								{
-									gotoxy(11,15);
-									fprintf(stdout,"O aluno só pode estar cursando 1 curso por vez ");
+									gotoxy(11,16);
+									fprintf(stdout,"O aluno so pode estar cursando 1 curso por vez ");
 									getch();
 									return;
 								}
 							}
-						free(matriculaRepetida);
-	
-						}						
+							free(matriculaRepetida);
+						
+						}	
 					}else{
 						if(opcao=='S')
 						{
-							sitCurso=leValidaCaracter("Situacao do curso (R - regular - P pendente - F pago) ","RPF",15,11);
-								switch(sitCurso)
-								{
-									case 'R':
-									strcpy(matricula.situacaoCurso,"REGULAR");
-									break;
-									case 'P':
-									break;
-									strcpy(matricula.situacaoCurso,"PENDENTE");
-									case 'F':
-									strcpy(matricula.situacaoCurso,"PAGO");
-									//printf("%s %s \n",matricula.situacaoAluno,matricula.situacaoCurso);
-									getch();
-									break;
-								}
+							matricula.situacaoCurso=leValidaCaracter("Situacao do curso (R - regular - P pendente - F pago) ","RPF",15,11);
+								
 						}
 					}
 					if(fseek(arq,(seq-1)*sizeof(Matriculas),SEEK_SET)==0)
@@ -1240,24 +1636,79 @@ void alteraMatriculas(void)
 void excluiMatriculas()
 {
 	Matriculas matricula;
+	Aluno alunos;
+	Cursos curso;
+	FILE *arqAlunos; 
+	FILE *arqCursos;
 	int seq,existeErro;
 	char *msg;
-	
-	matricula.idAluno=apresentaMatriculasV();
+	char sitAluno[TAM_SITUACAO];
+	char sitCurso[TAM_SITUACAO];
+	char nomeAluno[MAX_NOME];
+	char nomeCurso[MAX_NOME];
+	matricula.idCurso=apresentaMatriculasV();
 //	limpaJanela(1,1,70,70,AZUL);
     system("cls");
 	desenhaMoldura(10,10,18,70,AZUL,BRANCO);
 	if(matricula.idAluno<=0)
 		return;
 		
-	seq = obtemCadastroMatricula(matricula.idAluno);
+	seq = obtemCadastroMatricula(matricula.idCurso);
 	if(seq!=0)
 	{
 		if(leMatriculaPesquisada(seq,&matricula))
 		{
+			if(matricula.situacaoAluno=='C')
+			{
+					strcpy(sitAluno,"CURSANDO");
+			}else
+			{
+				strcpy(sitAluno,"CONCLUIDO");
+			}
+			if(matricula.situacaoCurso=='F')
+			{
+				strcpy(sitCurso,"PAGO");
+			}else
+			{
+				if(matricula.situacaoCurso=='P')
+				{
+					strcpy(sitCurso,"PENDENTE");
+				}else{
+					strcpy(sitCurso,"REGULAR");
+				}
+			}
+			if((arqAlunos=abreArquivo("dadosAlunos.txt","rb"))!=NULL)
+			{
+				while(!feof(arqAlunos))
+				{
+					if(fread(&alunos,sizeof(Aluno),1,arqAlunos)==1)
+					{
+						if(matricula.idAluno==alunos.matricula)
+						{
+							strcpy(nomeAluno,alunos.nomeAluno);
+						}
+					}
+				}
+				fclose(arqAlunos);
+			}
+			if((arqCursos=abreArquivo("dadosCursos.txt","rb"))!=NULL)
+			{
+				while(!feof(arqCursos))
+				{
+					if(fread(&curso,sizeof(Cursos),1,arqCursos)==1)
+					{
+						if(matricula.idCurso==curso.codCurso)
+						{
+							strcpy(nomeCurso,curso.nomeCurso);
+						}
+					}
+				}
+				fclose(arqCursos);
+			}
 			gotoxy(11,12);
-			fprintf(stdout,"%i - %i - %s - %s - %i/%i \n",matricula.idAluno,matricula.idCurso,matricula.situacaoAluno,matricula.situacaoCurso,matricula.mes,matricula.ano);
+			fprintf(stdout,"%s - %s - %s - %s - %i/%i \n",nomeAluno,nomeCurso,sitAluno,sitCurso,matricula.mes,matricula.ano);
 			gotoxy(11,13);
+			
 			if(respostaSN("Confirma ")=='S')
 			{
 				msg=excluiRegArq("dadosMatriculas.txt",sizeof(Matriculas),seq,&existeErro);

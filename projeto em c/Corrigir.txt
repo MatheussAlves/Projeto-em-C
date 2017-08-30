@@ -1,0 +1,48 @@
+- GRAVA O NOME DO ALUNO E CURSO NA MATRICULA ###################     
+- NAO VALIDA CPF ################################################## $
+- ALUNO SO PODE FAZER UM CURSO NA ESCOLA ###################  $                ---- Aluno só pode esta cursando 1 curso, no entanto pode ter cursado outros cursos
+- ALUNO ENTRA SE MATRICULA ANTES DE ENTRAR NA ESCOLA ############################# $ Aluno só pode matricular o mes APOS ele ter entrado na escola.
+- EXCLUI ALUNO COM MATRICULA EM CURSO ######################### $ aluno que nao estiver matriculado em algum curso pode ser excluido
+- GRAVA SITUACAO FINANCEIRA COMO STRING ###########
+- APRESENTA ALUNOS APENAS EM UMA SITUACAO ###########################
+- R3 = COLOCA TODOS OS DADOS NA MEMORIA ###############################
+
+- R4 = DATA TEM Q SER EM INTEIRO   ###############################################
+- R4 = PASSA TODOS OS DADOS ######################################
+----------------------------------------------------------------------------------------
+
+
+
+
+R2 NAO ESTA ORDENANDO
+
+CURSO DEVE SER PESQUISADO POR NOME ########################################.............................. 
+
+
+
+
+-----------------------------------------------------------------------------------------
+- FALTA ORDENAR , FALTA ORDENAR, FALTA ORDENAR
+- NAO PODE EXCLUIR CURSO ######################################### *************
+
+- R6 - TRAS TODOS OS DADOS PARA A MEMORIA #######################################################
+
+
+- ALUNO SE MATRICULA ANTES DE ENTRAR NA ESCOLA #################################
+- R2 = PROCURA NO ARQUIVO PELO CODIGO DO CURSO ######################################### // incosiscentcia nos dados e precisa fornecer a descriçao completa
+
+- R1 OK ################################
+
+
+- ARRUMAR O COMPARA MATRICULAS PARA ORDENACAO de matriculas <<<<<<<<< SUPER IMPORTANTE
+
+
+-PESQUISA MATRICULA ERRADA ##############################
+
+- ARRUMAR PARA MATRICULA , ALTERAR EXCLUIR ######################################
+
+
+----OLHAR RELATORIO 6
+
+# = consertado 
+$ = backup

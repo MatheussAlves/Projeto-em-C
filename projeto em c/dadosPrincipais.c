@@ -55,6 +55,7 @@ void cadastraMatricula();
 void gravaCurso(Cursos cursos);
 void gravaMatricula(Matriculas matriculas);
 void menuRelatorios();
+Cursos *obtemNomeCurso(int *qtde,char *texto);
 int main(void)
 
 {
@@ -204,14 +205,13 @@ void menuExclusao()
 	char opcao;
 	char *itensMenu[]={
     	               " ALUNOS ",
-	                   " CURSO",
 	                   " MATRICULA",
 	                   " VOLTAR",
 				   };
 	 do
       {
 	   	  limpaJanela(1,1,25,80,BLUE);
-	      opcao=menuVertical(4,itensMenu,WHITE,GREEN,10,10,1,1,BLUE,WHITE);
+	      opcao=menuVertical(3,itensMenu,WHITE,GREEN,10,10,1,1,BLUE,WHITE);
 	      retornaCor(BLUE,WHITE);
 		switch(opcao)
 		{
@@ -219,16 +219,13 @@ void menuExclusao()
 				excluiAluno();
 				break;
 			case 2:
-				excluiCursos();
-				break;
-			case 3:
 				excluiMatriculas();
 				break;
-			case 4:
+			case 3:
 				return;
 			
 		}
-	}while(opcao !=5);
+	}while(opcao !=4);
 				
 }
 //Objetivo: cadastra o menu de opcoes de cadastramento.
@@ -321,57 +318,35 @@ void cadastraMatricula()
 		getch();
 		matricula.idAluno=apresentaAlunosV();
 		seq=obtemMatriculaAluno(matricula.idAluno);
-		strcpy(matricula.nomeMatriculado,alunos[seq-1].nomeAluno);
-		
 	}
 	if((curso = obtemDadosArquivoCursos(&qtdeCursos))!=NULL)
 	{
-	
 		desenhaMoldura(10,10,25,70,AZUL,BRANCO);
 		gotoxy(11,12);
 		fprintf(stdout,"SELECIONE O CURSO ");
 		getch();
 		matricula.idCurso=apresentaCursosV();
+		seq2=obtemCodigoCurso(matricula.idCurso);
 		fflush(stdin);
 		desenhaMoldura(10,10,25,70,AZUL,BRANCO);
-		seq2=obtemCodigoCurso(matricula.idCurso);
-		//fprintf(stdout," seq %i id curso %i",seq2,matricula.idCurso);
-		strcpy(matricula.nomeCursoMatriculado,curso[seq2-1].nomeCurso);
-		//fprintf(stdout,"nome do cadastrado = %s ",matricula.nomeCursoMatriculado);
-		
 	}
-		sitAluno=leValidaCaracter("Situacao do aluno ( C - cursando F - concluido)","CF",14,11);
-		sitCurso=leValidaCaracter("Situacao do curso (R - regular - P pendente - F pago) ","RPF",15,11);
-		if(sitAluno=='C')
-		{
-			strcpy(matricula.situacaoAluno,"CURSANDO");
-		}else
-		{
-			strcpy(matricula.situacaoAluno,"CONCLUIDO");
-		}
-		if(sitCurso=='R')
-		{
-			strcpy(matricula.situacaoCurso,"REGULAR");
-		}else
-		{
-			if(sitCurso=='P')
-			{
-				strcpy(matricula.situacaoCurso,"PENDENTE");
-			}
-			else
-			{
-				strcpy(matricula.situacaoCurso,"PAGO");
-			}
-		}
+
+	
+	//fprintf(stdout,"nome do cadastrado = %s ",matricula.nomeCursoMatriculado);
+		
+	
+	matricula.situacaoAluno=leValidaCaracter("Situacao do aluno ( C - cursando F - concluido)","CF",14,11);
+	matricula.situacaoCurso=leValidaCaracter("Situacao do curso (R - regular - P pendente - F pago) ","RPF",15,11);
+	
 	
 	if((matriculaRepetida = obtemDadosArquivoMatriculas(&qtdeMatriculas))!=NULL)
 	{
 		for(cont=0;cont<qtdeMatriculas;cont++)
 		{
-			if(matricula.idAluno==matriculaRepetida[cont].idAluno && (stricmp(matricula.situacaoAluno,"CURSANDO"))==0)
+			if(matricula.idAluno==matriculaRepetida[cont].idAluno && matriculaRepetida[cont].situacaoAluno=='C' && matricula.situacaoAluno=='C' )
 			{
-				gotoxy(11,15);
-				fprintf(stdout,"O aluno só pode estar cursando 1 curso por vez ");
+				gotoxy(11,16);
+				fprintf(stdout,"O aluno so pode estar cursando 1 curso por vez ");
 				getch();
 				return;
 			}
@@ -379,18 +354,17 @@ void cadastraMatricula()
 		free(matriculaRepetida);
 	
 	}
-		matricula.mes=leInt("MES - ",1,12,11,16);
-		matricula.ano=leInt("ANO - ",1900,2050,11,17);
+		matricula.mes=leInt("MES - ",alunos[seq-1].dataMes,12,11,16);
+		matricula.ano=leInt("ANO - ",alunos[seq-1].dataAno,2050,11,17);
 		
 		gotoxy(11,18);
-		fprintf(stdout,"nome do cadastrado = %s ",matricula.nomeMatriculado);
+		fprintf(stdout,"nome do cadastrado = %s ",alunos[seq-1].nomeAluno);
 		gotoxy(11,19);
-		fprintf(stdout,"curso cadastrado = %s ",matricula.nomeCursoMatriculado);
+		fprintf(stdout,"curso cadastrado = %s ",curso[seq2-1].nomeCurso);
 		gotoxy(11,20);
 		gravaMatricula(matricula);
 		system("cls");
-		free(alunos);
-		free(curso);
+		
 }
 	
 // Objetivos  : cadastra os dados de um aluno, gravando-o em um arquivo
@@ -681,6 +655,8 @@ void pesquisaAlunos()
 	{
 		gotoxy(11,12);
 		printf("Essa matricula nao foi encontrada \n ");
+		getch();
+		return;
 	}
 	else
 	{
@@ -710,38 +686,88 @@ void pesquisaAlunos()
 void pesquisaCursos()
 {
 	FILE *arqAlunos;
-	Cursos cursos;
+	Cursos *cursos;
 	int codCurso;
 	int flag=0;
 	int nroCurso;
-	
+	int qtdeCursos=0;
+	int cont=0;
+	int linha=0;
+	char nomeCurso[NOME_CURSO];
 	desenhaMoldura(10,10,20,70,AZUL,BRANCO);
 	gotoxy(11,11);
-	codCurso=leInt("Informe o codigodo curso deseja pesquisar : ",MIN_COD,MAX_COD,11,11);
-	if((nroCurso = obtemCodigoCurso(codCurso))==0)
-	{
-		gotoxy(11,12);
-		printf("Esse codigho nao foi encontrado. \n ");
-	}
-	else
-	{
-		if(leDadosCurso(nroCurso,&cursos)==1)
-		{
-			gotoxy(11,11);
-			printf("    NOME CURSO   - CODIGO - MENSALIDADE - HORARIOS  \n");
-			gotoxy(11,12);
-			printf("%-17.17s-%-8i-%-13.2f-%-9i \n",cursos.nomeCurso,cursos.codCurso,cursos.mensalidade,cursos.horarios);
-			gotoxy(11,13);
-			printf("____________________________________\n");
-			getch();
+	//codCurso=leInt("Informe o codigodo curso deseja pesquisar : ",MIN_COD,MAX_COD,11,11);
+	leValidaTexto("Informe o nome ou parte do nome = ",nomeCurso,NOME_CURSO,11,11);
+	system("cls");
 
-		}
-		else
+	
+	if((cursos=obtemNomeCurso(&qtdeCursos,nomeCurso))!=NULL)
+	{
+		linha=3;
+		gotoxy(2,2);
+		fprintf(stdout,"%-15.15s %-10.10s %-14.14s %-10.10s","NOME CURSO","CODIGO","MENSALIDADE","HORARIOS");
+		for(cont=0;cont<qtdeCursos;cont++)
 		{
-			printf("Erro ao ler os dados do arquivo ! \n");
-			getch();
+			desenhaMoldura(1,1,linha+1,55,AZUL,BRANCO); 
+			
+		
+			gotoxy(2,linha);
+			linha++;
+			fprintf(stdout,"%-15.15s-%-10i-%-14.2f-%-10i ",cursos[cont].nomeCurso,cursos[cont].codCurso,cursos[cont].mensalidade,cursos[cont].horarios);
+		
 		}
+	}else
+	{
+		system("cls");
+		desenhaMoldura(10,10,20,70,AZUL,BRANCO);
+		gotoxy(11,11);
+		printf("Nao foi possivel carregar os dados do arquivo \n");
+		getch();
+		system("cls");
 	}
+	free(cursos);
+	if(qtdeCursos==0)
+	{
+		gotoxy(2,2);
+		printf("Nao foram encontrados resultados \n");
+		getch();
+		system("cls");
+	}
+	
+	getch();
+	
+}
+//Objetivo: Verificar se um nome digitado pelo usuario pertence ao arquivo de cursos, e passar para a memoria os dados
+//Parametros: referencia a quantidade de cursos encontrados, e ao texto digitado.
+//Retorno: Endereço da strcuct com os dados.
+Cursos *obtemNomeCurso(int *qtde,char *texto)
+{
+	FILE *arq=NULL;
+	Cursos *curso=NULL, *cursosAux=NULL;
+	if((arq = abreArquivo("dadosCursos.txt","rb"))!=NULL)
+	{
+		while(!feof(arq))
+		{
+			curso=(Cursos*) realloc(cursosAux,sizeof(Cursos)*((*qtde)+1));
+			if(curso!=NULL)
+			{
+				cursosAux=curso;
+				if(fread(&cursosAux[*qtde],sizeof(Cursos),1,arq)==1)
+				{
+					
+					if(strIstr(cursosAux[*qtde].nomeCurso,texto)!=NULL)
+					{
+						(*qtde)++;
+					}
+				}
+			}else
+			{
+				printf("Erro de alocacao de memoria ! \n");
+			}
+		}
+		fclose(arq);
+	}
+	return cursosAux;
 }
 //Objetivo: Apresentar o menu de opcoes de pesquisa.
 //Parametros:nenhum.
