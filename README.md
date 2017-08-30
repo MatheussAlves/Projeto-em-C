@@ -8,11 +8,13 @@ Pequeno projeto em C
 - Sexo
 - Data de ingresso na escola (dia, mês e ano coletados do computador - sem digitação)
 - Matrícula : valor inteiro e único a ser fornecido pelo usuário
+
 • Para cada Curso
 - Nome do curso
 - Código do curso (inteiro e único gerado pelo computador e maior que 1000 )
 - Carga horária do curso (inteiro)
 - Valor da mensalidade (real em R$)
+
 • Para a Matrícula escolar
 - Identificação única do aluno
 - Identificação única do curso onde o aluno está matriculado
